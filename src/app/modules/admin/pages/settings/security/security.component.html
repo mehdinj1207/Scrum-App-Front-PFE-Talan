@@ -1,0 +1,75 @@
+<div class="w-full max-w-3xl">
+
+    <!-- Form -->
+    <form [formGroup]="securityForm" #resetPasswordNgForm="ngForm">
+
+        <!-- Section -->
+        <div class="w-full">
+            <div class="text-xl">Change your password</div>
+            <div class="text-secondary">Make a password that follows password security rules.</div>
+        </div>
+        <div class="grid sm:grid-cols-4 gap-6 w-full mt-8">
+
+            <!-- New password -->
+            <div class="sm:col-span-4">
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Type your new password</mat-label>
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:key'" matPrefix></mat-icon>
+                    <input id="newPassword" class="cursor-pointer" [formControlName]="'newPassword'" type="password"
+                        matInput required  minlength="8" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$" #newPassword>
+                    <button mat-icon-button type="button"
+                        (click)="newPassword.type === 'password' ? newPassword.type = 'text' : newPassword.type = 'password'"
+                        matSuffix>
+                        <mat-icon class="icon-size-5" *ngIf="newPassword.type === 'password'"
+                            [svgIcon]="'heroicons_solid:eye'"></mat-icon>
+                        <mat-icon class="icon-size-5" *ngIf="newPassword.type === 'text'"
+                            [svgIcon]="'heroicons_solid:eye-off'"></mat-icon>
+                    </button>
+                    <mat-error>
+                        New password is required
+                    </mat-error>
+                </mat-form-field>
+                <div class="mt-1 text-md text-hint">Minimum 8 characters. Must include numbers, lowercase and uppercase letters and special
+                    characters.</div>
+            </div>
+
+            <!-- New password Retape-->
+            <div class="sm:col-span-4">
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Retype your new password</mat-label>
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:key'" matPrefix></mat-icon>
+                    <input id="newPasswordRetype" class="cursor-pointer" [formControlName]="'newPasswordRetype'"
+                        type="password" matInput required #newPasswordRetype>
+                    <button mat-icon-button type="button"
+                        (click)="newPasswordRetype.type === 'password' ? newPasswordRetype.type = 'text' : newPasswordRetype.type = 'password'"
+                        matSuffix>
+                        <mat-icon class="icon-size-5" *ngIf="newPasswordRetype.type === 'password'"
+                            [svgIcon]="'heroicons_solid:eye'"></mat-icon>
+                        <mat-icon class="icon-size-5" *ngIf="newPasswordRetype.type === 'text'"
+                            [svgIcon]="'heroicons_solid:eye-off'"></mat-icon>
+                    </button>
+                    <mat-error *ngIf="securityForm.get('newPasswordRetype').hasError('required')">
+                        Password confirmation is required
+                    </mat-error>
+                    <mat-error *ngIf="securityForm.get('newPasswordRetype').hasError('mustMatch')">
+                        Passwords must match
+                    </mat-error>
+                </mat-form-field>
+                <div *ngIf="securityForm.get('newPasswordRetype').hasError('mustMatch')"
+                    class="mt-1 text-md text-hint text-red-600">This Field must match your new password</div>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end">
+            <button class="ml-4 mt-8" mat-flat-button type="button" [disabled]="securityForm.invalid"
+               (click)="updatePassword()" [color]="'primary'">Reset Password
+            </button>
+        </div>
+
+        <!-- Divider -->
+        <div class="my-10 border-t"></div>
+    </form>
+
+</div>

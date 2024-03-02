@@ -1,0 +1,168 @@
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+
+    <mat-drawer-container class="flex-auto h-full bg-card dark:bg-transparent" (backdropClick)="onBackdropClicked()">
+
+        <!-- Drawer -->
+        <mat-drawer class="w-full sm:w-100 dark:bg-gray-900" [mode]="drawerMode" [opened]="false" [position]="'end'"
+            [disableClose]="true" #matDrawer>
+            <router-outlet></router-outlet>
+        </mat-drawer>
+
+        <mat-drawer-content class="flex flex-col bg-gray-100 dark:bg-transparent">
+
+            <!-- Main -->
+            <div class="flex flex-col flex-auto">
+
+                <!-- Header -->
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between p-6 sm:py-8 md:px-8 border-b bg-card dark:bg-transparent">
+                    <!-- Title -->
+                    <div>
+                        <div class="text-3xl md:text-4xl font-extrabold tracking-tight leading-none">Project Files</div>
+                        <div class="flex items-center mt-0.5 font-medium text-secondary">
+                            <ng-container *ngIf="!items.path.length">
+                                {{allAttachments.length}} files
+                            </ng-container>
+
+                            <!-- Breadcrumbs -->
+                            <ng-container *ngIf="items.path.length">
+                                <div class="flex items-center space-x-2">
+                                    <a class="text-primary cursor-pointer" [routerLink]="['/apps/file-manager']">Home
+                                    </a>
+                                    <div class="">/</div>
+                                    <ng-container *ngFor="let path of items.path; let last = last; trackBy: trackByFn">
+                                        <ng-container *ngIf="!last">
+                                            <a class="text-primary cursor-pointer"
+                                                [routerLink]="['/apps/file-manager/folders/', path.id]">{{path.name}}</a>
+                                        </ng-container>
+                                        <ng-container *ngIf="last">
+                                            <div>{{path.name}}</div>
+                                        </ng-container>
+                                        <ng-container *ngIf="!last">
+                                            <div class="">/</div>
+                                        </ng-container>
+                                    </ng-container>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="mt-4 sm:mt-0">
+
+
+                        <a mat-stroked-button (click)="goBack()">
+                            <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:view-grid'"></mat-icon>
+                            Sprints
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Add File Button 
+                <ng-container>
+                    <label for="file-input"
+                        class="absolute right-14 cursor-pointer mt-36 h-10 w-10 text-gray-600 hover:text-gray-800">
+                        <mat-icon svgIcon="feather:plus-square" class="cursor-pointer  h-10 w-10 
+                        text-gray-600 hover:text-gray-800" ></mat-icon>
+                    </label>
+                    <input id="file-input" type="file" class="hidden" (change)="onFileSelected($event)" />
+                </ng-container>-->
+
+
+
+                <!-- Add File Button -->
+                <ng-container>
+                    <label for="file-input"
+                        class="absolute right-26 cursor-pointer mt-36 h-10 w-10 text-gray-600 hover:text-gray-800">
+                        <a mat-stroked-button>
+                            <mat-icon svgIcon="mat_outline:file_upload" class="cursor-pointer mr-1 h-2 w-2 
+                            text-gray-600 hover:text-gray-800"></mat-icon>
+                            Upload
+                        </a>
+                    </label>
+                    <input id="file-input" type="file" class="hidden" (change)="onFileSelected($event)" />
+                </ng-container>
+
+
+
+                <!-- Items list -->
+                <ng-container *ngIf="items && (items.folders.length > 0 || items.files.length > 0); else noItems">
+                    <div class="p-6 md:p-8 space-y-8">
+
+                        <!-- Files -->
+                        <ng-container *ngIf="items.files.length > 0">
+                            <div>
+                                <div class="font-medium text-gray-700 text-xl">Files</div>
+
+
+
+                                <div class="flex flex-wrap -m-2 mt-2">
+                                    <ng-container *ngFor="let file of allAttachments; trackBy:trackByFn">
+                                        <a class="flex flex-col w-40 h-40 m-2 p-4 shadow rounded-2xl cursor-pointer bg-card"
+                                            [routerLink]="['./details/', items.files[0].id ]"
+                                            (click)="addFileId(file.id)">
+                                            <div class="aspect-w-9 aspect-h-6">
+                                                <div class="flex items-center justify-center">
+                                                    <!-- Icons -->
+                                                    <div class="relative">
+                                                        <mat-icon class="icon-size-14 text-hint"
+                                                            [svgIcon]="'iconsmind:file'"></mat-icon>
+                                                        <div class="absolute left-0 bottom-0 px-1.5 rounded text-xs font-semibold leading-5 text-white"
+                                                            [class.bg-red-600]="file.fileType == 'application/pdf'"
+                                                            [class.bg-blue-600]="file.fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'"
+                                                            [class.bg-green-600]="file.fileType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
+                                                            [class.bg-amber-600]="file.fileType == 'image/jpeg'"
+                                                            [class.bg-gray-600]="file.fileType == 'text/plain'"
+                                                            [class.bg-amber-800]="file.fileType == 'image/png'"
+                                                            [class.bg-purple-800]="file.fileType == 'video/mp4'"
+                                                            [class.bg-purple-400]="file.fileType == 'audio/mpeg'"
+                                                            [class.bg-pink-400]="file.fileType == 'application/json'">
+                                                            {{
+                                                            file.fileType == 'application/pdf' ? 'PDF' :
+                                                            file.fileType == 'image/jpeg' ? 'JPEG' :
+                                                            file.fileType ==
+                                                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                                                            ? 'DOC' :
+                                                            file.fileType ==
+                                                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                                            ? 'XLSX' :
+                                                            file.fileType == 'text/plain' ? 'TXT' :
+                                                            file.fileType == 'image/png' ? 'PNG' :
+                                                            file.fileType == 'video/mp4' ? 'MP4' :
+                                                            file.fileType == 'audio/mpeg' ? 'MP3' :
+                                                            file.fileType == 'application/json' ? 'JSON' :
+                                                            ''
+                                                            }}
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex flex-col flex-auto justify-center text-center text-sm font-medium">
+                                                <div class="truncate" [matTooltip]="file.fileName">{{file.fileName}}
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+
+                <!-- No items template -->
+                <ng-template #noItems>
+                    <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+                        <mat-icon class="icon-size-24" [svgIcon]="'iconsmind:file_hide'"></mat-icon>
+                        <div class="mt-4 text-2xl font-semibold tracking-tight text-secondary">There are no items!</div>
+                    </div>
+                </ng-template>
+
+            </div>
+
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

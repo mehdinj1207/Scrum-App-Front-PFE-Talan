@@ -1,0 +1,36 @@
+
+<form (ngSubmit)="onSubmit()">
+
+    <div class="flex" >
+    
+    <!--<input class="flex-1 cursor-pointer border-solid mt-2 mr-3 " matInput [(ngModel)]="newName" name="newName" #title="ngModel"
+    required minlength="4" pattern="^[a-zA-Z0-9_\s-]+$" [placeholder]="'Title'">-->
+
+    <mat-form-field  class="flex-1 gt-xs:pl-3">
+        <mat-label class="font-bold text-lg" >Rename WorkflowItem</mat-label>
+        <input class="cursor-pointer" matInput [(ngModel)]="newName" name="newName" minlength="4" 
+        pattern="^[a-zA-Z0-9_\s-]+$" 
+        required>
+
+        <mat-error *ngIf="newName == '' ">
+            WorkflowItem Name is mandatory
+        </mat-error>
+
+        <mat-error *ngIf="newName.length < 4">
+            Name length is 4 characters
+        </mat-error>
+
+        <mat-error *ngIf="stringNonAlphaNum(newName)">
+           Name should not containt special characters
+        </mat-error>
+
+    </mat-form-field>
+    
+    <button [disabled]="" class="mt-7 ml-4 bg-accent-800"
+    mat-flat-button [color]="'accent'" type="submit">
+    Save
+    </button>
+
+    </div>
+
+</form>

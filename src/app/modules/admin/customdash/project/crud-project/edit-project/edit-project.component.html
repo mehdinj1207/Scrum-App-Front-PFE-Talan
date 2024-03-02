@@ -1,0 +1,177 @@
+<div class="flex flex-col max-w-240 md:min-w-160 max-h-screen -m-6">
+
+    <!-- Header -->
+<div class="flex flex-0 items-center justify-between h-14 pr-3 sm:pr-5 pl-6 sm:pl-8 bg-accent-800 text-on-primary">
+    <div class="text-base">Edit Project</div>
+    <button mat-icon-button (click)="cancelAdd()" [tabIndex]="-1">
+        <mat-icon class="text-current" [svgIcon]="'heroicons_outline:x'"></mat-icon>
+    </button>
+</div>
+
+<form class="flex flex-col flex-auto p-6 sm:p-8 overflow-y-auto" #myForm="ngForm" (submit)="addProject()">
+
+    <div class="flex">
+        <mat-form-field [ngClass]="formFieldHelpers" class="flex-auto gt-xs:pr-3">
+            <mat-label>Title </mat-label>
+    
+            <input class="cursor-pointer " matInput [(ngModel)]="project.title" name="title" #title="ngModel" 
+            required minlength="4" pattern="^[a-zA-Z0-9_\s-]+$">
+    
+            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil-alt"></mat-icon>
+    
+            <mat-error *ngIf="!myForm.value.title ">
+                Title Field is mandatory
+            </mat-error>
+    
+            <mat-error *ngIf="myForm.value.title  && (myForm.value.title.length < 4) ">
+                Title minimum length is 4 characters
+            </mat-error>
+    
+            <mat-error *ngIf="myForm.value.title  && stringNonAlphaNum(myForm.value.title)">
+                Title should not containt special characters
+            </mat-error>
+    
+        </mat-form-field>
+        
+    
+    </div>
+    
+    
+    
+    <div class="flex">
+    
+        
+        <mat-form-field [ngClass]="formFieldHelpers" class="flex-auto gt-xs:pl-3">
+            <mat-label>Reference</mat-label>
+            <input class="cursor-pointer" matInput [(ngModel)]="project.reference" name="reference" 
+            required minlength="4" pattern="^[a-zA-Z0-9_\s-]+$">
+        
+            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:pencil-alt"></mat-icon>
+    
+            <mat-error *ngIf="!myForm.value.reference" >
+                 Reference Field is mandatory
+            </mat-error>
+    
+            <mat-error *ngIf="myForm.value.reference  && (myForm.value.reference.length < 4) ">
+                Reference minimum length is 4 characters
+            </mat-error>
+    
+            <mat-error *ngIf="myForm.value.reference  && stringNonAlphaNum(myForm.value.reference)">
+                Reference should not containt special characters
+            </mat-error>
+    
+    
+        </mat-form-field>
+    
+    
+        &nbsp;&nbsp;&nbsp;
+    
+    
+        <mat-form-field [ngClass]="formFieldHelpers" class="flex-auto gt-xs:pl-3">
+            <mat-label>Owner</mat-label>
+            <input class="cursor-pointer" matInput [(ngModel)]="project.owner" name="owner" required>
+            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:user"></mat-icon>
+            <mat-error *ngIf="!myForm.value.owner ">
+                 Owner Field is mandatory
+            </mat-error>
+        </mat-form-field>
+    
+    </div>
+    
+    <div class="flex">
+    
+        <mat-form-field appearance="fill" class="flex-auto gt-xs:pl-3 mr-3 cursor-pointer">
+        <mat-label>Start Date</mat-label>
+        <input class="cursor-pointer" matInput [matDatepicker]="picker" [(ngModel)]="project.dateCreation" 
+        name="dateCreation" required (dateChange)="clearDates($event)">
+        <mat-hint>Choose a date MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle class="w-8" matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    
+        <mat-error *ngIf="!myForm.value.dateCreation ">
+             Start Date Field is mandatory
+        </mat-error>
+    
+      </mat-form-field>
+    
+    
+      <mat-form-field appearance="fill" class="flex-auto gt-xs:pl-3 cursor-pointer">
+        <mat-label>End Date</mat-label>
+        <input class="cursor-pointer" matInput [matDatepicker]="picker2" [(ngModel)]="project.endDate" 
+        name="endDate" required (dateChange)="clearDates($event)">
+        <mat-hint>Choose a date MM/DD/YYYY</mat-hint>
+        <mat-datepicker-toggle class="w-8" matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+    
+        <mat-error *ngIf="!myForm.value.endDate ">
+            End Date Field is mandatory
+       </mat-error>
+    
+    
+    
+      </mat-form-field>
+    
+    
+    </div>
+    
+    <mat-form-field class="fuse-mat-textarea w-full">
+        <textarea
+            class="cursor-pointer"
+            [(ngModel)]="project.description"
+            matInput
+            name="description"
+            minlength="10" pattern="^[a-zA-Z0-9,._\s\n-]+$"
+            required
+            matTextareaAutosize></textarea>
+    
+        <mat-label>Description</mat-label>
+    
+        <mat-error *ngIf="!myForm.value.description ">
+            Description Field is mandatory
+        </mat-error>
+    
+        <mat-error *ngIf="myForm.value.description  && (myForm.value.description.length < 10) ">
+            Description minimum length is 10 characters
+        </mat-error>
+    
+        <mat-error *ngIf="myForm.value.description  && stringNonAlphaNum(myForm.value.description)">
+            Description should not containt special characters
+        </mat-error>
+    
+    </mat-form-field>
+    
+    
+    <div class="flex items-center justify-end  mt-2  py-1  ">
+        
+        <mat-error class="mr-5 text-sm" *ngIf="!test && myForm.value.dateCreation && myForm.value.endDate
+        && checkDates( project.dateCreation , project.endDate )">
+            EndDate must be higher than Startdate
+        </mat-error>
+    
+
+        <button mat-flat-button
+        type='button'
+        class="bg-gray-200"
+        (click)="cancelAdd()">
+            Cancel
+        </button>
+
+        <button
+        [disabled]="myForm.invalid || project.dateCreation > project.endDate "
+        class="px-6 ml-3 bg-accent-800"
+        mat-flat-button
+        [color]="'primary'"
+        type="submit">
+        Save
+        </button>
+    
+
+    
+    </div>
+     <!--Two Data Binding with the form test
+    <pre> {{myForm.value | json}} </pre>
+    <pre> {{myForm.value.dateCreation}} </pre>
+    <pre> {{checkDates( myForm.value.dateCreation , myForm.value.endDate ) }} </pre>-->
+    
+    </form>
+</div>

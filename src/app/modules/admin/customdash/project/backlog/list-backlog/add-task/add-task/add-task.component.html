@@ -1,0 +1,292 @@
+<div class="flex flex-auto ">
+
+    <form class="flex flex-col flex-auto p-6 pt-10 sm:p-8 sm:pt-10 overflow-y-auto">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between -mt-3 -ml-4">
+
+            <!-- Mark as ... button -->
+            <button class="pr-4 pl-3.5" mat-button>
+                <ng-container>
+                    <div class="flex items-center justify-center">
+                        <mat-icon class="text-primary" [svgIcon]="'heroicons_outline:plus-circle'"></mat-icon>
+                        <span class="ml-2 font-semibold">ADD A NEW TICKET</span>
+                    </div>
+                </ng-container>
+            </button>
+
+            <div class="flex items-center">
+
+                <!-- Close button -->
+                <button mat-icon-button [routerLink]="['../']">
+                    <mat-icon [svgIcon]="'heroicons_outline:x'"></mat-icon>
+                </button>
+            </div>
+
+        </div>
+
+        <mat-divider class="mt-6 mb-8"></mat-divider>
+
+        <!-- Title -->
+        <div>
+            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript w-full">
+                <mat-label>Task name</mat-label>
+                <input matInput [spellcheck]="false" [(ngModel)]="task.name" [ngModelOptions]="{standalone: true}">
+            </mat-form-field>
+        </div>
+
+        <!--Epic-->
+        
+        <!-- Priority and Type -->
+
+        <div class="flex flex-wrap items-center mt-8">
+
+            <div>
+                <div class="font-medium">Priority</div>
+                <div class="flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer"
+                    [ngClass]="{'text-green-800 bg-green-200 dark:text-green-100 dark:bg-green-500': idTicketPriority === 1,
+                                        'text-gray-800 bg-gray-200 dark:text-gray-100 dark:bg-gray-500': idTicketPriority=== 2,
+                                        'text-red-800 bg-red-200 dark:text-red-100 dark:bg-red-500': idTicketPriority === 3}" [matMenuTriggerFor]="priorityMenu">
+
+                    <!-- Low -->
+                    <ng-container *ngIf="idTicketPriority === 1">
+                        <mat-icon class="icon-size-5 text-current"
+                            [svgIcon]="'heroicons_solid:arrow-narrow-down'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Low</span>
+                    </ng-container>
+
+                    <!-- Normal -->
+                    <ng-container *ngIf="idTicketPriority === 2">
+                        <mat-icon class="icon-size-4 text-current" [svgIcon]="'heroicons_solid:minus'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Normal</span>
+                    </ng-container>
+
+                    <!-- High -->
+                    <ng-container *ngIf="idTicketPriority === 3">
+                        <mat-icon class="icon-size-4 text-current"
+                            [svgIcon]="'heroicons_solid:arrow-narrow-up'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">High</span>
+                    </ng-container>
+                </div>
+                <mat-menu #priorityMenu="matMenu">
+                    <!-- Low -->
+                    <button [ngClass]="{'bg-hover': idTicketPriority === 1}" mat-menu-item (click)="setTaskPriority(1)">
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Low</span>
+                            <mat-icon class="mr-0 icon-size-4 text-green-600 dark:text-green-500"
+                                [svgIcon]="'heroicons_solid:arrow-narrow-down'"></mat-icon>
+                        </span>
+                    </button>
+
+                    <!-- Normal -->
+                    <button [ngClass]="{'bg-hover': idTicketPriority === 2}" mat-menu-item (click)="setTaskPriority(2)">
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Normal</span>
+                            <mat-icon class="mr-0 icon-size-4 text-gray-600 dark:text-gray-500"
+                                [svgIcon]="'heroicons_solid:minus'"></mat-icon>
+                        </span>
+                    </button>
+
+                    <!-- High -->
+                    <button [ngClass]="{'bg-hover': idTicketPriority === 3}" mat-menu-item (click)="setTaskPriority(3)">
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">High</span>
+                            <mat-icon class="mr-0 icon-size-4 text-red-600 dark:text-red-500"
+                                [svgIcon]="'heroicons_solid:arrow-narrow-up'"></mat-icon>
+                        </span>
+                    </button>
+                </mat-menu>
+            </div>
+            <div class="ml-6">
+                <div class="font-medium">Type</div>
+                <div class="flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer" [ngClass]="{'text-green-800 bg-green-200 dark:text-green-100 dark:bg-green-500': idTicketType=== 1,
+                                        'text-gray-800 bg-gray-200 dark:text-gray-100 dark:bg-gray-500': idTicketType=== 2,
+                                        'text-red-800 bg-red-200 dark:text-red-100 dark:bg-red-500': idTicketType === 3,
+                                        'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700':!idTicketType}"
+                    [matMenuTriggerFor]="typeMenu">
+
+                    <mat-icon *ngIf="!idTicketType" class="icon-size-5 text-current"
+                        [svgIcon]="'heroicons_solid:document-add'"></mat-icon>
+                    <span class="ml-2 text-md font-medium">
+                        <ng-container *ngIf="!idTicketType">Not set</ng-container>
+                    </span>
+                    <!-- Low -->
+                    <ng-container *ngIf="idTicketType === 1">
+                        <mat-icon class="icon-size-5 text-current"
+                            [svgIcon]="'heroicons_solid:bookmark-alt'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Story</span>
+                    </ng-container>
+
+                    <!-- Normal -->
+                    <ng-container *ngIf="idTicketType === 2">
+                        <mat-icon class="icon-size-4 text-current"
+                            [svgIcon]="'heroicons_solid:clipboard-check'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Task</span>
+                    </ng-container>
+
+                    <!-- High -->
+                    <ng-container *ngIf="idTicketType=== 3">
+                        <mat-icon class="icon-size-4 text-current" [svgIcon]="'heroicons_solid:chip'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Bug</span>
+                    </ng-container>
+                </div>
+                <mat-menu #typeMenu="matMenu">
+                    <!-- Low -->
+                    <button [ngClass]="{'bg-hover': idTicketType === 1}" mat-menu-item (click)="setTaskType(1)">
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Story</span>
+                            <mat-icon class="mr-0 icon-size-4 text-green-600 dark:text-green-500"
+                                [svgIcon]="'heroicons_solid:bookmark-alt'"></mat-icon>
+                        </span>
+                    </button>
+
+                    <!-- Normal -->
+                    <button [ngClass]="{'bg-hover': idTicketType === 2}" mat-menu-item (click)="setTaskType(2)">
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Task</span>
+                            <mat-icon class="mr-0 icon-size-4 text-gray-600 dark:text-gray-500"
+                                [svgIcon]="'heroicons_solid:clipboard-check'"></mat-icon>
+                        </span>
+                    </button>
+
+                    <!-- High -->
+                    <button [ngClass]="{'bg-hover': idTicketType === 3}" mat-menu-item (click)="setTaskType(3)">
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Bug</span>
+                            <mat-icon class="mr-0 icon-size-4 text-red-600 dark:text-red-500"
+                                [svgIcon]="'heroicons_solid:chip'"></mat-icon>
+                        </span>
+                    </button>
+                </mat-menu>
+            </div>
+            <div class="ml-6">
+                <div class="font-medium mb-1.5">Epic</div>
+                <div class="flex flex-wrap items-center -m-1.5">
+                    <!-- Tags -->
+                    
+                    <div class="flex items-center justify-center px-4 m-1.5 rounded-full leading-9 cursor-pointer "
+                    [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': idSelectedEpic==null,
+                                'text-blue-800 bg-blue-200 dark:text-blue-100 dark:bg-blue-500': idSelectedEpic!=null}"    
+                    (click)="openTagsPanel()" #tagsPanelOrigin>
+    
+                        <ng-container *ngIf="idSelectedEpic!=null">
+                            <mat-icon class="icon-size-5 text-blue-600 dark:text-blue-500 "  [svgIcon]="'heroicons_solid:tag'"></mat-icon>
+                            <span class="ml-1.5 whitespace-nowrap ">{{epic.name}}</span>
+                        </ng-container>
+                        <ng-container *ngIf="epics.length && idSelectedEpic==null">
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:pencil-alt'"></mat-icon>
+                            <span class="ml-1.5 text-md font-medium whitespace-nowrap">Edit</span>
+                        </ng-container>
+    
+                        <ng-container *ngIf="!epics.length && idSelectedEpic==null">
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                            <span class="ml-1.5 text-md font-medium whitespace-nowrap">Add</span>
+                        </ng-container>
+    
+                        <!-- Tags panel -->
+                        <ng-template #tagsPanel>
+                            <div class="w-60 rounded border shadow-md bg-card">
+                                <!-- Tags panel header -->
+                                <div class="flex items-center m-3 mr-2">
+                                    <div class="flex items-center">
+                                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:search'"></mat-icon>
+                                        <div class="ml-2">
+                                            <input class="w-full min-w-0 py-1 border-0" type="text"
+                                                placeholder="Enter Epic name" (input)="filterTags($event)" [maxLength]="30"
+                                                #newTagInput>
+                                        </div>
+                                    </div>
+                                    <button class="ml-1" mat-icon-button (click)="toggleTagsEditMode()">
+                                        <mat-icon *ngIf="!tagsEditMode" class="icon-size-5"
+                                            [svgIcon]="'heroicons_solid:pencil-alt'"></mat-icon>
+                                        <mat-icon *ngIf="tagsEditMode" class="icon-size-5"
+                                            [svgIcon]="'heroicons_solid:check'"></mat-icon>
+                                    </button>
+                                </div>
+                                <div class="flex flex-col max-h-64 py-2 border-t overflow-y-auto">
+                                    <!-- Tags -->
+                                    <ng-container *ngIf="!tagsEditMode && filteredTags.length">
+                                        <mat-radio-group (change)="getEpic(idSelectedEpic)" name="epicTags" [(ngModel)]="idSelectedEpic">
+                                            <ng-container *ngFor="let tag of filteredTags">
+                                              <div class="flex items-center h-10 min-h-10 px-4 cursor-pointer hover:bg-hover" matRipple>
+                                                <mat-radio-button  class="flex items-center h-10 min-h-10" [value]="tag.idEpic">
+                                                </mat-radio-button>
+                                                <div class="ml-1">{{tag.name}}</div>
+                                              </div>
+                                            </ng-container>
+                                          </mat-radio-group>
+                                    </ng-container>
+                                    <!-- Tags editing -->
+                                    <ng-container *ngIf="tagsEditMode">
+                                        <div class="py-2 space-y-2">
+                                            <ng-container *ngFor="let tag of filteredTags">
+                                                <div class="flex items-center">
+                                                    <mat-form-field
+                                                        class="fuse-mat-dense fuse-mat-no-subscript w-full mx-4">
+                                                        <input matInput [value]="tag.name"
+                                                            (input)="updateEpic(tag, $event)">
+                                                        <button mat-icon-button (click)="deleteTag(tag)" *ngIf="tag.idEpic !== idSelectedEpic"  matSuffix >
+                                                            <mat-icon class="icon-size-5 ml-2"
+                                                                [svgIcon]="'heroicons_solid:trash'"></mat-icon>
+                                                        </button>
+                                                    </mat-form-field>
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                    </ng-container>
+                                    <!-- Create tag -->
+                                    <div class="flex items-center h-10 min-h-10 -ml-0.5 pl-4 pr-3 leading-none cursor-pointer hover:bg-hover"
+                                        *ngIf="shouldShowCreateTagButton(newTagInput.value)"
+                                        (click)="createTag(newTagInput.value); newTagInput.value = ''" matRipple>
+                                        <mat-icon class="mr-2 icon-size-5"
+                                            [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                                        <div class="break-all">Create "<b>{{newTagInput.value}}</b>"</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </div>
+                    
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+
+
+        <!-- Objective -->
+        <div class="mt-8 mb-3">
+            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript w-full">
+                <mat-label>Notes</mat-label>
+                <textarea matInput [spellcheck]="false" matTextareaAutosize rows="2" [(ngModel)]="task.note"
+                    [ngModelOptions]="{standalone: true}"></textarea>
+            </mat-form-field>
+        </div>
+        <mat-error *ngIf="!checkTaskFields()">{{errorMsg}}</mat-error>
+
+        <div class="grid grid-cols-2 gap-4 w-full mt-8 align-items-end">
+            <button class="flex-auto" (click)="onCloseDrawer()" mat-stroked-button>
+                Cancel
+            </button>
+            <button class="flex-auto" mat-flat-button [color]="'primary'" (click)="addNewTask()"
+                [disabled]="!checkTaskFields()">
+                Save Ticket
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+
+
+
+
+
+<!--tags-->

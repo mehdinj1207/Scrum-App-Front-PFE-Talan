@@ -1,0 +1,79 @@
+<div class="flex flex-col flex-auto p-6 md:p-8">
+
+    <!-- Close button -->
+    <div class="flex items-center justify-end">
+        <button mat-icon-button [routerLink]="['../../']">
+            <mat-icon [svgIcon]="'heroicons_outline:x'"></mat-icon>
+        </button>
+    </div>
+
+
+    <div class="aspect-w-9 aspect-h-5 mt-6">
+        <div class="flex items-center justify-center border rounded-lg bg-gray-50 dark:bg-card">
+
+            <ng-container>
+                <mat-icon class="icon-size-16 text-hint" [svgIcon]="'iconsmind:file'"></mat-icon>
+            </ng-container>
+        </div>
+    </div>
+
+
+    <div class="flex flex-col items-start mt-8">
+        <div class="text-xl font-medium">{{attachment.fileName}}</div>
+        <div class="mt-1 px-1.5 rounded text-sm font-semibold leading-5 text-white"
+            [class.bg-red-600]="attachment.fileType == 'application/pdf'"
+            [class.bg-blue-600]="attachment.fileType == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'"
+            [class.bg-green-600]="attachment.fileType == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
+            [class.bg-amber-600]="attachment.fileType == 'image/jpeg'"
+            [class.bg-gray-600]="attachment.fileType == 'text/plain'" 
+            [class.bg-amber-800]="attachment.fileType == 'image/png'"
+            [class.bg-purple-800]="attachment.fileType=='video/mp4'"
+            [class.bg-purple-400]="attachment.fileType=='audio/mpeg'"
+            [class.bg-pink-400]="attachment.fileType=='application/json'">
+            {{
+            attachment.fileType == 'application/pdf' ? 'PDF' :
+            attachment.fileType == 'image/jpeg' ? 'JPEG' :
+            attachment.fileType ==
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ? 'DOC' :
+            attachment.fileType ==
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ? 'XLSX' :
+            attachment.fileType == 'text/plain' ? 'TXT' :
+            attachment.fileType == 'image/png' ? 'PNG' :
+            attachment.fileType == 'video/mp4' ? 'MP4' :
+            attachment.fileType == 'audio/mpeg' ? 'MP3' :
+            attachment.fileType == 'application/json' ? 'JSON' :
+            ''
+            }}
+
+        </div>
+    </div>
+
+
+    <div class=" text-lg font-medium mt-6">Informations</div>
+        <div class="flex flex-col mt-4 border-t border-b divide-y font-medium">
+            <div class="flex items-center justify-between py-3">
+                <div class="text-secondary">Created By</div>
+                <div>{{attachment.owner}}</div>
+            </div>
+            <div class="flex items-center justify-between py-3">
+                <div class="text-secondary">Size</div>
+                <div>{{attachment.fileSize}}MB</div>
+            </div>
+        </div>
+
+
+
+        <!-- Actions -->
+        <div class="grid grid-cols-2 gap-4 w-full mt-8">
+
+            <button (click)="downloadFile()" class="flex-auto" mat-flat-button [color]="'primary'">
+                Download
+            </button>
+            <button (click)="deleteFile()" class="flex-auto" mat-stroked-button>
+                Delete
+            </button>
+        </div>
+
+    </div>

@@ -1,0 +1,37 @@
+
+
+<div class="flex flex-col">
+
+
+    <div class="flex-1 font-bold mb-1">{{ressource.role.role}}</div>
+
+    <div class="flex flex-row mt-3">
+
+    <img class="flex-1"   *ngIf="ressource.user.data" class="flex-0 inline w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card 
+    ring-offset-transparent object-cover" [src]="'data:image/png;base64,' + ressource.user.data">
+
+    <div class="flex-1 ml-4 mt-1">{{ressource.user.email}}</div>
+
+    
+    <span *ngIf="ressource.user.data && userRole == 'Manager' " class="flex-1 ml-4 mt-2">
+        <mat-icon mat-icon-button (click)="deleteRessource(ressource.user.idUser,ressource.project.idProject)" 
+        class=" cursor-pointer icon-size-4">delete</mat-icon>
+    </span>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,183 @@
+<div class="relative flex flex-auto w-full bg-card dark:bg-transparent">
+
+    <!-- Mails list -->
+    <ng-container>
+        <div class="relative flex flex-auto flex-col w-full min-w-0 lg:min-w-90 lg:max-w-90 border-r z-10">
+
+            <!-- Header -->
+            <div
+                class="relative flex flex-0 items-center justify-between h-16 px-4 border-b bg-gray-50 dark:bg-transparent">
+
+                <div class="flex items-center">
+                    <button mat-flat-button [color]="'accent'" (click)="openComposeDialog()">
+                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                        <span class="ml-2 mr-2">Send</span>
+                    </button>
+                </div>
+                <!-- Pagination -->
+                <div class="flex items-center">
+                    <!-- Status -->
+                    <div class="ml-6">
+                        <div class="flex items-center mt-1.5 px-4 leading-9 rounded-full mb-1 cursor-pointer" [ngClass]="{'text-primary-800 bg-primary-200 dark:text-primary-100 dark:bg-primary-500': filter =='Received',
+                                'text-yellow-800 bg-yellow-200 dark:text-yellow-100 dark:bg-yellow-500':  filter =='Sent',
+                                'text-gray-800 bg-gray-200 dark:text-gray-100 dark:bg-gray-500': filter =='All'}"
+                            [matMenuTriggerFor]="statusMenu">
+
+                            <!-- Completed -->
+                            <ng-container *ngIf="filter =='Received'">
+                                <mat-icon class="icon-size-5 text-current"
+                                    [svgIcon]="'heroicons_solid:download'"></mat-icon>
+                                <span class="ml-2 mr-1 text-md font-medium">Received</span>
+                            </ng-container>
+
+                            <!-- In Progress -->
+                            <ng-container *ngIf="filter =='Sent'">
+                                <mat-icon class="icon-size-4 text-current"
+                                    [svgIcon]="'heroicons_solid:upload'"></mat-icon>
+                                <span class="ml-2 mr-1 text-md font-medium">Sent</span>
+                            </ng-container>
+
+                            <!-- Created -->
+                            <ng-container *ngIf="filter =='All'">
+                                <mat-icon class="icon-size-4 text-current"
+                                    [svgIcon]="'heroicons_solid:dots-circle-horizontal'"></mat-icon>
+                                <span class="ml-2 mr-1 text-md font-medium">All</span>
+                            </ng-container>
+                        </div>
+                        <mat-menu #statusMenu="matMenu">
+                            <!-- Completed -->
+                            <button [ngClass]="{'bg-hover': filter =='Received'}" (click)="filterFeedbacks('Received')"
+                                mat-menu-item>
+                                <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                                    <span class="font-medium">Received</span>
+                                </span>
+                            </button>
+
+                            <!-- In Progress -->
+                            <button [ngClass]="{'bg-hover': filter =='Sent'}" (click)="filterFeedbacks('Sent')"
+                                mat-menu-item>
+                                <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                                    <span class="font-medium">Sent</span>
+                                </span>
+                            </button>
+
+                            <!-- Created -->
+                            <button [ngClass]="{'bg-hover': filter =='All'}" (click)="filterFeedbacks('All')"
+                                mat-menu-item>
+                                <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                                    <span class="font-medium">All</span>
+                                </span>
+                            </button>
+                        </mat-menu>
+                    </div>
+                </div>
+
+                <!-- Loading bar -->
+                <mat-progress-bar class="absolute inset-x-0 bottom-0 h-0.5" *ngIf="mailsLoading"
+                    [mode]="'indeterminate'"></mat-progress-bar>
+            </div>
+
+            <!-- Mail list -->
+            <div class="overflow-y-auto" #mailList>
+                <ng-container *ngIf="this.filteredFeedbacks.length==0">
+                    <div
+                        class="mt-15 absolute inset-1 flex flex-auto flex-col items-center justify-center dark:bg-transparent">
+                        <mat-icon class="icon-size-24" [svgIcon]="'iconsmind:mailbox_empty'"></mat-icon>
+                        <div class="mt-4 text-2xl font-semibold tracking-tight text-secondary"
+                            *ngIf="filter=='Received'||filter=='Sent'">There are no feedbacks {{filter}}</div>
+                        <div class="mt-4 text-2xl font-semibold tracking-tight text-secondary" *ngIf="filter=='All'">
+                            There are no feedbacks</div>
+                    </div>
+                </ng-container>
+                <!-- Item loop -->
+                <ng-container *ngFor="let feedback of filteredFeedbacks; let i = index; trackBy: trackByFn">
+
+                    <!-- Item -->
+                    <a class="relative flex border-t first:border-0 hover:bg-hover" [routerLink]="[feedback.idFeedback]"
+                        (click)="onMailSelected(feedback)">
+
+                        <!-- Item content -->
+                        <div class="flex flex-col items-start justify-start w-full py-6 pr-4 pl-5 border-l-4 border-transparent"
+                            [ngClass]="{'border-primary': !feedback.isRead,
+                                        'bg-primary-50 dark:bg-black dark:bg-opacity-5': selectedMail && selectedMail.idFeedback === feedback.idFeedback}">
+
+                            <!-- Info -->
+                            <div #filter *ngIf="filter=='All'" class="mb-2">
+                                <div class="flex items-center justify-between bg-card shadow rounded-2xl overflow-hidden"
+                                     *ngIf="feedback.sendOrReceived">
+                                  <ng-container>
+                                    <div class="py-0.5 px-3 rounded-full text-sm font-semibold text-blue-800 bg-blue-100 dark:text-blue-50 dark:bg-blue-500">
+                                      received
+                                    </div>
+                                  </ng-container>
+                                </div>
+                                <div class="flex items-center justify-end bg-card shadow rounded-2xl overflow-hidden"
+                                     *ngIf="!feedback.sendOrReceived">
+                                  <ng-container>
+                                    <div class="py-0.5 px-3 rounded-full text-sm font-semibold text-yellow-800 bg-yellow-100 dark:text-yellow-50 dark:bg-yellow-500">
+                                      sent
+                                    </div>
+                                  </ng-container>
+                                </div>
+                              </div>
+                            <div class="flex items-center w-full">
+                                <!-- Sender name -->
+                                <div class="mr-1 font-semibold truncate">
+                                    {{feedback.user.firstname}} {{feedback.user.lastname}}
+                                </div>
+                                <!-- Important indicator -->
+                                <mat-icon class="mr-1 icon-size-4 text-red-500 dark:text-red-600"
+                                    *ngIf="feedback.urgent" [svgIcon]="'heroicons_solid:exclamation-circle'"></mat-icon>
+
+
+                                <!-- Important indicator -->
+                                <mat-icon class="mr-3 icon-size-4 text-red-500 dark:text-red-600"
+                                    *ngIf="feedback.important"
+                                    [svgIcon]="'heroicons_solid:exclamation-circle'"></mat-icon>
+                                <!-- Date -->
+                                <div class="ml-auto text-md text-right whitespace-nowrap text-hint">
+                                    {{feedback.dateFeedback | date: 'LLL dd HH:mm'}}
+                                </div>
+                            </div>
+
+                            <!-- Subject -->
+                            <div class="flex items-center w-full mt-1">
+                                <span class="leading-4 truncate">{{feedback.project.title}}</span>
+                                <!-- Indicators -->
+                                <div class="flex ml-auto pl-2" *ngIf="feedback.isImportant">
+                                    <!-- Starred -->
+                                    <mat-icon
+                                        class="flex justify-center icon-size-4 ml-1 text-yellow-500 dark:text-yellow-400"
+                                        [svgIcon]="'heroicons_solid:star'"></mat-icon>
+                                </div>
+                            </div>
+
+                            <!-- Excerpt -->
+                            <div class="mt-2 leading-normal line-clamp-2 text-secondary"
+                                [innerHTML]="parseHTML(feedback.content)">
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </ng-container>
+
+            </div>
+
+        </div>
+
+    </ng-container>
+
+    <!-- No mails template -->
+
+
+    <!-- Mail details -->
+    <ng-container *ngIf="mails && mails.length > 0">
+        <div class="flex-auto" [ngClass]="{'z-20 absolute inset-0 lg:static lg:inset-auto flex': selectedMail && selectedMail.id,
+                        'hidden lg:flex': !selectedMail || !selectedMail.id}">
+            <router-outlet></router-outlet>
+        </div>
+    </ng-container>
+
+</div>

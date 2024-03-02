@@ -1,0 +1,124 @@
+<div class="flex flex-auto">
+
+    <form class="flex flex-col flex-auto p-6 pt-10 sm:p-8 sm:pt-10 overflow-y-auto">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between -mt-3 -ml-4">
+
+            <!-- Mark as ... button -->
+            <button class="pr-4 pl-3.5" mat-button>
+                <ng-container>
+                    <div class="flex items-center justify-center">
+                        <mat-icon class="text-primary" [svgIcon]="'heroicons_outline:plus-circle'"></mat-icon>
+                        <span class="ml-2 font-semibold">ADD A NEW SPRINT</span>
+                    </div>
+                </ng-container>
+            </button>
+
+            <div class="flex items-center">
+
+                <!-- Close button -->
+                <button mat-icon-button [routerLink]="['../']">
+                    <mat-icon [svgIcon]="'heroicons_outline:x'"></mat-icon>
+                </button>
+            </div>
+
+        </div>
+
+        <mat-divider class="mt-6 mb-8"></mat-divider>
+
+        <!-- Title -->
+        <div>
+            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript w-full">
+                <mat-label>Sprint name</mat-label>
+                <input matInput [(ngModel)]="sprint.name" [ngModelOptions]="{standalone: true}" [spellcheck]="false">
+            </mat-form-field>
+        </div>
+
+
+        <!-- Priority and Due date -->
+        <div class="flex flex-wrap items-center mt-8">
+
+            <!-- Start date -->
+            <div>
+                <div class="font-medium">Start date</div>
+                <div class="relative flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer"
+                    [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': !sprint.startDate,
+                                'text-green-800 bg-green-200 dark:text-green-100 dark:bg-green-500': sprint.startDate}" (click)="startDatePicker.open()">
+                    <mat-icon class="icon-size-5 text-current" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                    <span class="ml-2 text-md font-medium">
+                        <ng-container *ngIf="sprint.startDate">{{sprint.startDate | date:'longDate'}}</ng-container>
+                        <ng-container class="'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700'"
+                            *ngIf="!sprint.startDate">Start date not set</ng-container>
+                    </span>
+                    <mat-form-field
+                        class="fuse-mat-no-subscript fuse-mat-dense invisible absolute inset-0 -mt-2.5 opacity-0 pointer-events-none">
+                        <input matInput [(ngModel)]="sprint.startDate" [ngModelOptions]="{standalone: true}"
+                            [matDatepicker]="startDatePicker">
+                        <mat-datepicker #startDatePicker>
+                            <mat-datepicker-actions>
+                                <button mat-button (click)="clearStartDate()" matDatepickerCancel>Clear
+                                </button>
+                                <button class="" mat-flat-button [color]="'primary'" matDatepickerApply>Select
+                                </button>
+                            </mat-datepicker-actions>
+                        </mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+            
+            <!-- Due date -->
+            <div class="ml-6">
+                <div class="font-medium">Due date</div>
+                <div class="relative flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer"
+                    [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': !sprint.endDate,
+                                'text-green-800 bg-green-200 dark:text-green-100 dark:bg-green-500': sprint.endDate && isEndDateValid(),
+                                'text-red-800 bg-red-200 dark:text-red-100 dark:bg-red-500': sprint.endDate && !isEndDateValid()}" (click)="dueDatePicker.open()">
+                    <mat-icon class="icon-size-5 text-current" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                    <span class="ml-2 text-md font-medium">
+                        <ng-container *ngIf="sprint.endDate">{{sprint.endDate | date:'longDate'}}</ng-container>
+                        <ng-container class="'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700'"
+                            *ngIf="!sprint.endDate">Due date not set</ng-container>
+                    </span>
+                    <mat-form-field
+                        class="fuse-mat-no-subscript fuse-mat-dense invisible absolute inset-0 -mt-2.5 opacity-0 pointer-events-none">
+                        <input matInput [(ngModel)]="sprint.endDate" [ngModelOptions]="{standalone: true}"
+                            [matDatepicker]="dueDatePicker">
+                        <mat-datepicker #dueDatePicker>
+                            <mat-datepicker-actions>
+                                <button mat-button (click)="clearEndDate()" matDatepickerCancel>Clear
+                                </button>
+                                <button class="" mat-flat-button [color]="'primary'" matDatepickerApply>Select
+                                </button>
+                            </mat-datepicker-actions>
+                        </mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Objective -->
+        <div class="mt-8 mb-3">
+            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript w-full">
+                <mat-label>Objective</mat-label>
+                <textarea matInput [spellcheck]="false" [(ngModel)]="sprint.objective"
+                    [ngModelOptions]="{standalone: true}" matTextareaAutosize rows="5"></textarea>
+            </mat-form-field>
+        </div>
+    <mat-error  *ngIf="!checkSprintFields()">{{errorMsg}}</mat-error>
+
+        <div class="grid grid-cols-2 gap-4 w-full mt-8 align-items-end">
+            <button class="flex-auto" (click)="onCloseDrawer()" mat-stroked-button>
+                Cancel
+            </button>
+            <button class="flex-auto" mat-flat-button [color]="'primary'" [disabled]="!checkSprintFields()"
+                    (click)="saveSprint()">
+                Save Sprint
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,197 @@
+<div class="flex flex-col w-full">
+    <form [formGroup]="userEditForm">
+        <!-- Header -->
+        <div class="relative w-full h-40 sm:h-48 px-8 sm:px-12 bg-accent-100 dark:bg-accent-700">
+            <!-- Background -->
+            <ng-container>
+                <img class="absolute inset-0 object-cover w-full h-full"
+                    src="../../../../../../assets/images/apps/contacts/background/users-background.png">
+            </ng-container>
+            <!-- Close button -->
+            <div class="flex items-center justify-end w-full max-w-3xl mx-auto pt-6">
+                <button mat-icon-button (click)="onCloseDrawer()" [matTooltip]="'Close'" [routerLink]="['../']">
+                    <mat-icon class="text-white" [svgIcon]="'heroicons_outline:x'"></mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="relative flex flex-col flex-auto items-center px-6 sm:px-12">
+            <div class="w-full max-w-3xl">
+                <div class="flex flex-auto items-end -mt-16">
+                    <div
+                        class="relative flex items-center justify-center w-32 h-32 rounded-full overflow-hidden ring-4 ring-bg-card">
+                        <!-- Upload / Remove avatar -->
+                        <div class="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-20">
+                            <div>
+                                <input id="avatar-file-input"
+                                    class="absolute h-0 w-0 opacity-0 invisible pointer-events-none" type="file"
+                                    [multiple]="false" [accept]="'image/jpeg, image/png'"
+                                    (change)="onFileSelected($event)" #avatarFileInput>
+                                <label
+                                    class="flex items-center justify-center w-10 h-10 rounded-full cursor-pointer hover:bg-hover"
+                                    for="avatar-file-input" matRipple>
+                                    <mat-icon class="text-white" [svgIcon]="'heroicons_outline:camera'"></mat-icon>
+                                </label>
+                            </div>
+                            <div>
+                                <button mat-icon-button (click)="removeAvatarForEdit()">
+                                    <mat-icon class="text-white" [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <img *ngIf="!userEdit.data" class="object-cover w-full h-full" [src]="sanitizedImageUrl">
+                        <img *ngIf="userEdit.data" class="object-cover w-full h-full"
+                            [src]="'data:image/png;base64,' + userEdit.data">
+                    </div>
+                </div>
+                <!-- Lastname -->
+                <div class="mt-8">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Firstname</mat-label>
+                        <mat-icon matPrefix class="hidden sm:flex icon-size-5"
+                            [svgIcon]="'heroicons_solid:user-circle'"></mat-icon>
+                        <input matInput required [formControlName]="'firstname'" [placeholder]="'Firstname'">
+                    </mat-form-field>
+                </div>
+                <!-- Lastname -->
+                <div class="mt-8">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Lastname</mat-label>
+                        <mat-icon matPrefix class="hidden sm:flex icon-size-5"
+                            [svgIcon]="'heroicons_solid:user'"></mat-icon>
+                        <input matInput required [formControlName]="'lastname'" [placeholder]="'Lastname'">
+                    </mat-form-field>
+                </div>
+
+                <!-- Cin -->
+                <div class="mt-8">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>National ID card</mat-label>
+                        <mat-icon matPrefix class="hidden sm:flex icon-size-5"
+                            [svgIcon]="'heroicons_solid:identification'"></mat-icon>
+                        <input matInput required pattern="^[0-9]{8}" [formControlName]="'cin'"
+                            [placeholder]="'*********'">
+                    </mat-form-field>
+                    <mat-error *ngIf="userEditForm.get('cin').hasError('pattern')">
+                        National ID card should be numeric and contains 8 digits
+                    </mat-error>
+                </div>
+
+                <!-- Email -->
+                <div class="mt-8">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Email</mat-label>
+                        <mat-icon matPrefix class="hidden sm:flex icon-size-5"
+                            [svgIcon]="'heroicons_solid:mail'"></mat-icon>
+                        <input matInput [formControlName]="'email'" required readonly="{{role=='Consultant' || role=='Manager'}}"
+                            pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" [placeholder]="'Email address'"
+                            [spellcheck]="false">
+                    </mat-form-field>
+                    <mat-error *ngIf="userEditForm.get('email').hasError('pattern')">
+                        Enter a valid email address
+                    </mat-error>
+                </div>
+                <!-- Phone -->
+                <!-- Phone -->
+                <div class="mt-8">
+                    <div class="space-y-4">
+
+                        <div class="relative flex">
+                            <mat-form-field class="fuse-mat-no-subscript flex-auto">
+                                <mat-label>Phone</mat-label>
+                                <mat-icon matPrefix class="hidden sm:flex icon-size-5"
+                                    [svgIcon]="'heroicons_solid:phone'"></mat-icon>
+                                <input type="tel" [formControlName]="'tel'" required matInput
+                                    [placeholder]="'Phone number'">
+                                    <mat-select class="mr-1.5" matPrefix [(ngModel)]="selectedIsoEdit" [ngModelOptions]="{standalone: true}">
+                                        <mat-select-trigger>
+                                            <span class="flex items-center">
+                                                <span class="hidden sm:flex w-6 h-4 mr-1 overflow-hidden"
+                                                    [style.background]="'url(\'/assets/images/apps/contacts/flags.png\') no-repeat 0 0'"
+                                                    [style.backgroundSize]="'24px 3876px'"
+                                                    [style.backgroundPosition]="getCountryByIso(selectedIsoEdit).flagImagePos"></span>
+                                                <span
+                                                    class="sm:mx-0.5 font-medium text-default">{{getCountryByIso(selectedIsoEdit).code}}</span>
+                                            </span>
+                                        </mat-select-trigger>
+                                        <ng-container *ngFor="let country of countries; trackBy: trackByFn">
+                                            <mat-option [value]="country.iso">
+                                                <span class="flex items-center">
+                                                    <span class="w-6 h-4 overflow-hidden"
+                                                        [style.background]="'url(\'/assets/images/apps/contacts/flags.png\') no-repeat 0 0'"
+                                                        [style.backgroundSize]="'24px 3876px'"
+                                                        [style.backgroundPosition]="country.flagImagePos"></span>
+                                                    <span class="ml-2">{{country.name}}</span>
+                                                    <span class="ml-2 font-medium">{{country.code}}</span>
+                                                </span>
+                                            </mat-option>
+                                        </ng-container>
+                                    </mat-select>
+                            </mat-form-field>
+                            <mat-form-field
+                                class="fuse-mat-no-subscript flex-auto w-full max-w-24 sm:max-w-50 ml-2 sm:ml-4">
+                                <mat-label>Department</mat-label>
+                                <mat-select [(ngModel)]="selectedDepartmentId" [ngModelOptions]="{standalone: true}"
+                                    required disabled="{{role=='Consultant' || role=='Manager'}}">
+                                    <mat-option *ngFor="let department of departments" [value]="department.idDepartment"
+                                        selected="{{department.idDepartment==selectedDepartmentId}}">
+                                        {{department.name}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Phone numbers -->
+                <div class="mt-8">
+                    <div class="space-y-4">
+
+                        <div class="relative flex">
+                            <mat-form-field class="fuse-mat-no-subscript flex-auto">
+                                <mat-label>Position</mat-label>
+                                <mat-select [formControlName]="'position'" [placeholder]="'Position'" required disabled="{{role=='Consultant' || role=='Manager'}}">
+                                    <mat-option value="Software Engineer">Software Engineer</mat-option>
+                                    <mat-option value="Software Developer">Software Developer</mat-option>
+                                    <mat-option value="Product Manager">Product Manager</mat-option>
+                                    <mat-option value="Software Architect">Software Architect</mat-option>
+                                    <mat-option value="Team Lead">Team Lead</mat-option>
+                                    <mat-option value="Intern">Intern</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field
+                                class="fuse-mat-no-subscript flex-auto w-full max-w-24 sm:max-w-50 ml-2 sm:ml-4">
+                                <mat-label>Role</mat-label>
+                                <mat-select [formControlName]="'role'" [placeholder]="'Role'" required disabled="{{role=='Consultant' || role=='Manager'}}">
+                                    <mat-option value="Consultant">Consultant</mat-option>
+                                    <mat-option value="Manager">Manager</mat-option>
+                                    <mat-option value="Human Ressources">Human Ressources</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="mt-8">
+                    <mat-error *ngIf="userEditForm.invalid">
+                        Please make sure all fields are filled in correctly
+                    </mat-error>
+                </div>
+                <!-- Actions -->
+                <div
+                    class="flex items-center mt-10 -mx-6 sm:-mx-12 py-4 pr-4 pl-1 sm:pr-12 sm:pl-7 border-t bg-gray-50 dark:bg-transparent">
+                    <!-- Cancel -->
+                    <button class="ml-auto" mat-button (click)="onCloseDrawer()" [matTooltip]="'Cancel'">
+                        Cancel
+                    </button>
+                    <!-- Save -->
+                    <button class="ml-2" mat-flat-button [color]="'primary'" [disabled]="userEditForm.invalid"
+                        [matTooltip]="'Save'" (click)="updateUser()">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

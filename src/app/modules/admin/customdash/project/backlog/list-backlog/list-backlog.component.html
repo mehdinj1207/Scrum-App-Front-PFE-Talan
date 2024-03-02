@@ -1,0 +1,289 @@
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+
+    <mat-drawer-container class="flex-auto h-full bg-card dark:bg-transparent" (backdropClick)="onBackdropClicked()">
+
+        <!-- Drawer -->
+        <mat-drawer class="w-full sm:w-128 dark:bg-gray-900" [mode]="drawerMode" [opened]="false" [position]="'end'"
+            [disableClose]="true" #matDrawer>
+            <router-outlet></router-outlet>
+        </mat-drawer>
+
+        <mat-drawer-content class="flex flex-col">
+
+            <!-- Main -->
+            <div class="flex flex-col flex-auto">
+
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between py-8 px-6 md:px-8">
+                    <!-- Title -->
+                    <div>
+                        <div class="text-4xl font-extrabold tracking-tight leading-none">Tasks</div>
+                        <div class="ml-0.5 mt-2 font-medium text-secondary">
+                            <span>{{nbTickets}} remaining tickets</span>
+                        </div>
+                    </div>
+                    <!-- Actions -->
+                    <div class="mt-4 sm:mt-0">
+                        <!-- Add ticket button -->
+                        <button class="ml-3" mat-flat-button [color]="'accent'" (click)="addTask()"
+                            *ngIf="userRole == 'Manager'&& sprintStatus!=='Completed'">
+                            <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                            <span class="ml-2 mr-1">Add Task</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Sprint Start-->
+                <div class="group w-full select-none hover:bg-gray-100 dark:hover:bg-hover"
+                    [ngClass]="'h-12 text-lg font-semibold bg-gray-50 dark:bg-transparent'">
+
+                    <!-- Drag preview -->
+                    <div class="flex flex-0 w-0 h-0" *cdkDragPreview></div>
+
+                    <!-- Task content -->
+                    <div class="relative flex items-center h-full pl-10">
+
+                        <!-- Selected indicator -->
+                        <ng-container>
+                            <div class="z-10 absolute -top-px right-0 -bottom-px flex flex-0 w-1 bg-primary"></div>
+                        </ng-container>
+
+                        <!-- Drag handle -->
+                        <div
+                            class=" absolute flex items-center justify-center inset-y-0 left-0 w-8 md:group-hover:flex">
+                            <mat-icon class="icon-size-5 text-hint" [svgIcon]="'heroicons_solid:menu'"></mat-icon>
+                        </div>
+
+                        <!-- Sprint -->
+                        <a class="flex flex-auto items-center min-w-0 h-full pr-7">
+                            <!-- Sprint Title -->
+                            <div class="flex-auto mr-2 truncate">
+                                <ng-container>
+                                    <span>{{sprint.name}} : </span>
+                                </ng-container>
+                                <ng-container>
+                                    <span class="select-none"> &nbsp; {{sprint.objective}}</span>
+                                </ng-container>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <!-- Tasks list -->
+                <ng-container *ngIf="nbTickets > 0; else noTasks">
+                    <div class="divide-y" cdkDropList [cdkDropListData]="tickets"
+                        (cdkDropListDropped)="dropped($event)">
+
+                        <!-- Task -->
+                        <ng-container *ngFor="let ticket of tickets">
+                            <div [id]="'ticket-' + ticket.idTicket"
+                                class="group w-full select-none hover:bg-gray-100 dark:hover:bg-hover"
+                                [ngClass]="'h-16'" [class.border-t]="first" cdkDrag [cdkDragLockAxis]="'y'">
+
+                                <!-- Drag preview -->
+                                <div class="flex flex-0 w-0 h-0" *cdkDragPreview></div>
+
+                                <!-- Task content -->
+                                <div class="relative flex items-center h-full pl-10">
+
+                                    <!-- Selected indicator -->
+                                    <ng-container *ngIf="selectedTicket && selectedTicket.idTicket === ticket.idTicket">
+                                        <div
+                                            class="z-10 absolute -top-px right-0 -bottom-px flex flex-0 w-1 bg-primary">
+                                        </div>
+                                    </ng-container>
+
+                                    <!-- Drag handle -->
+                                    <div class="md:hidden absolute flex items-center justify-center inset-y-0 left-0 w-8 cursor-move md:group-hover:flex"
+                                        cdkDragHandle>
+                                        <mat-icon class="icon-size-5 text-hint"
+                                            [svgIcon]="'heroicons_solid:menu'"></mat-icon>
+                                    </div>
+
+                                    <!-- Complete ticket button -->
+                                    <button class="mr-2 -ml-2.5 leading-none" mat-icon-button>
+                                        <ng-container>
+                                            <mat-icon class="text-primary"
+                                                [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                                        </ng-container>
+                                    </button>
+
+                                    <!-- Task link -->
+                                    <div class="flex flex-auto items-center min-w-0 h-full pr-7"
+                                        (click)="editTicket(ticket.idTicket)">
+                                        <!-- Title & Placeholder -->
+                                        <div class="flex-auto mr-2 truncate" (click)="editTicket(ticket.idTicket)">
+                                            <ng-container *ngIf="ticket.name">
+                                                <span>{{ticket.name}}</span>
+                                            </ng-container>
+                                            <ng-container *ngIf="!ticket.name">
+                                                <span class="select-none text-hint">{{ticket.ticketType.name |
+                                                    titlecase}} title</span>
+                                            </ng-container>
+
+                                        </div>
+                                        <div class="flex-left truncate flex mr-12" *ngIf="ticket.epic!=null">
+                                            <ng-container>
+                                                <div class="py-0.5 px-3 rounded-full text-sm font-semibold
+                                                text-blue-800 bg-blue-100 dark:text-blue-50 dark:bg-blue-500">
+                                                    {{ticket.epic.name}}
+                                                </div>
+                                            </ng-container>
+                                        </div>
+                                        <div class="flex items-center justify-start mr-4"
+                                        (click)="$event.stopPropagation();getTicket(ticket.idTicket)"
+                                        *ngIf="sprintStatus==='Completed'||sprintStatus!=='Completed'&&userRole == 'Consultant'">
+                                        <ng-container>
+                                            
+                                            <div class="flex items-center py-0.5 px-3 rounded-full cursor-pointer"
+                                                [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': ticket.workflowItem.name==null,
+                                            'text-blue-800 bg-blue-200 dark:text-blue-100 dark:bg-blue-500': ticket.workflowItem.name!=null}"
+                                                >
+                                                <ng-container *ngIf="ticket.workflowItem.name!=null">
+                                                    <mat-icon class="icon-size-5 text-blue-600 dark:text-blue-500 "
+                                                        [svgIcon]="'heroicons_solid:lightning-bolt'"></mat-icon>
+                                                    <span
+                                                        class="ml-1.5 whitespace-nowrap ">{{ticket.workflowItem.name}}</span>
+                                                </ng-container>
+                                                <ng-container *ngIf="ticket.workflowItem.name==null">
+                                                    <mat-icon class="icon-size-5"
+                                                        [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                                                    <span class="ml-1.5 text-md font-medium whitespace-nowrap">Add
+                                                        status</span>
+                                                </ng-container>
+                                            </div>
+                                        </ng-container>
+                                        </div>
+
+
+
+                                        <div class="flex items-center justify-start mr-4"
+                                            (click)="$event.stopPropagation();getTicket(ticket.idTicket)"
+                                            *ngIf="userRole == 'Manager'&& sprintStatus!=='Completed'">
+                                            <ng-container>
+                                                
+                                                <div class="flex items-center py-0.5 px-3 rounded-full cursor-pointer"
+                                                    [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': ticket.workflowItem.name==null,
+                                                'text-blue-800 bg-blue-200 dark:text-blue-100 dark:bg-blue-500': ticket.workflowItem.name!=null}"
+                                                    [matMenuTriggerFor]="statusMenu">
+                                                    <ng-container *ngIf="ticket.workflowItem.name!=null">
+                                                        <mat-icon class="icon-size-5 text-blue-600 dark:text-blue-500 "
+                                                            [svgIcon]="'heroicons_solid:lightning-bolt'"></mat-icon>
+                                                        <span
+                                                            class="ml-1.5 whitespace-nowrap ">{{ticket.workflowItem.name}}</span>
+                                                    </ng-container>
+                                                    <ng-container *ngIf="ticket.workflowItem.name==null">
+                                                        <mat-icon class="icon-size-5"
+                                                            [svgIcon]="'heroicons_solid:plus-circle'"></mat-icon>
+                                                        <span class="ml-1.5 text-md font-medium whitespace-nowrap">Add
+                                                            status</span>
+                                                    </ng-container>
+                                                </div>
+                                                <mat-menu #statusMenu="matMenu" >
+                                                    <!-- Completed -->
+                                                    <mat-radio-group
+                                                        (change)="setWorkflowItem(ticket.idTicket,idSelectedWorkflow)"
+                                                        name="epicTags" [(ngModel)]="idSelectedWorkflow">
+                                                        <ng-container *ngFor="let tag of workflow">
+                                                            <div class="flex items-center h-10 min-h-10 px-4 cursor-pointer hover:bg-hover"
+                                                                matRipple>
+                                                                <mat-radio-button
+                                                                    class="flex items-center h-10 min-h-10"
+                                                                    [value]="tag.idWorkflowItem">
+                                                                </mat-radio-button>
+                                                                <div class="ml-1">{{tag.name}}</div>
+                                                            </div>
+                                                        </ng-container>
+                                                    </mat-radio-group>
+                                                </mat-menu>
+                                            </ng-container>
+                                        </div>
+                                        <div class="hover:bg-gray-400 cursor-pointer mr-4 flex flex-0 items-center justify-center w-7 h-7 
+                                                rounded-full ring ring-offset-1 ring-bg-card ring-offset-transparent bg-gray-200 text-gray-500"
+                                            (click)=" $event.stopPropagation();userRole === 'Manager' && showCards(ticket.idTicket)&&sprintStatus!=='Completed'">
+                                            {{ticket.estimation}}
+                                        </div>
+                                        <ng-container *ngIf="ticketAssignment?.length">
+
+                                            <div class="cursor-pointer flex items-center -space-x-1.5 mr-8">
+                                                <ng-container *ngFor="let assignment of ticketAssignment;">
+                                                    <div *ngIf="assignment.ticket.idTicket==ticket.idTicket">
+                                                        <img *ngIf="!assignment.user.data" class="flex-0 w-8 h-8 
+                                                rounded-full ring ring-offset-1 ring-bg-card 
+                                                ring-offset-transparent object-cover" [src]="sanitizedImageUrl">
+
+
+                                                        <img *ngIf="assignment.user.data && assignment.ticketAssignmentRole.idTicketAssignmentRole===1"
+                                                            class="flex-0 w-8 h-8 rounded-full ring ring-primary ring-offset-0 ring-bg-card
+                                                    ring-offset-transparent object-cover"
+                                                            [src]="'data:image/png;base64,' + assignment.user.data">
+                                                        <img *ngIf="assignment.user.data && assignment.ticketAssignmentRole.idTicketAssignmentRole===2"
+                                                            class="flex-0 w-8 h-8 rounded-full ring-yellow-500  ring ring-offset-0 ring-bg-card
+                                                    ring-offset-transparent object-cover"
+                                                            [src]="'data:image/png;base64,' + assignment.user.data">
+
+                                                    </div>
+
+                                                </ng-container>
+
+                                            </div>
+
+                                        </ng-container>
+
+
+
+                                        <div class="hover:bg-gray-400 cursor-pointer mr-4 flex flex-0 items-center justify-center w-8 h-8 
+                                                        rounded-full ring ring-offset-1 ring-bg-card ring-offset-transparent bg-gray-200 text-gray-500"
+                                            (click)="$event.stopPropagation();affectTicketModal(ticket.idTicket)"
+                                            *ngIf="userRole == 'Manager'&& sprintStatus!=='Completed'">
+                                            <mat-icon svgIcon="heroicons_solid:user-add"></mat-icon>
+                                        </div>
+                                        <!-- Priority -->
+                                        <ng-container>
+                                            <div class="w-4 h-4 mr-3">
+                                                <!-- Low -->
+                                                <mat-icon class="icon-size-4 text-green-600 dark:text-green-400"
+                                                    *ngIf="ticket.ticketPriority.name === 'Low'"
+                                                    [svgIcon]="'heroicons_solid:arrow-narrow-down'"
+                                                    [title]="'Low'"></mat-icon>
+                                                <!-- High -->
+                                                <mat-icon class="icon-size-4 text-red-600 dark:text-red-400"
+                                                    *ngIf="ticket.ticketPriority.name === 'High'"
+                                                    [svgIcon]="'heroicons_solid:arrow-narrow-up'"
+                                                    [title]="'High'"></mat-icon>
+                                                <mat-icon class="icon-size-4 text-gray-600 dark:text-gray-400"
+                                                    *ngIf="ticket.ticketPriority.name === 'Medium'"
+                                                    [svgIcon]="'heroicons_solid:minus'" [title]="'Medium'"></mat-icon>
+                                            </div>
+                                        </ng-container>
+                                        <!-- Due date -->
+
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
+                    </div>
+
+                </ng-container>
+
+                <ng-template #noTasks>
+                    <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+                        <mat-icon class="icon-size-24" [svgIcon]="'iconsmind:bulleted_list'"></mat-icon>
+                        <div class="mt-4 text-2xl font-semibold tracking-tight text-secondary">Add a ticket to start
+                            planning!</div>
+                    </div>
+                </ng-template>
+
+            </div>
+            <div *ngIf="showPoker">
+                <div class='cards'>
+                    <div class='card' *ngFor="let fab of fabonacci" (click)="setEstimation(fab)">
+                        <div class='card-face'>
+                            <div class='card-label'>{{fab}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

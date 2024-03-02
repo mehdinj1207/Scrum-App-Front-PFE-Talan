@@ -1,0 +1,70 @@
+<div class="flex flex-col max-w-240 md:min-w-160 max-h-screen -m-6">
+
+    <!-- Header -->
+    <div class="flex flex-0 items-center justify-between h-14 pr-3 sm:pr-5 pl-6 sm:pl-8 bg-accent-800 text-on-primary">
+        <div class="text-base">Details Project</div>
+        <button mat-icon-button (click)="cancelAdd()" [tabIndex]="-1">
+            <mat-icon class="text-current" [svgIcon]="'heroicons_outline:x'"></mat-icon>
+        </button>
+    </div>
+
+
+<div class="flex flex-col flex-auto p-6 sm:p-8 overflow-y-auto">
+<div class="flex justify-end ">
+    <div class="flex-auto gt-xs:pl-3 mr-3 left-0 cursor-pointer  rounded-xl w-50">
+        <h1 class="font-bold">Title </h1>
+        <p>{{project.title}}</p>
+    </div>
+
+    <div class="cursor-pointer right-0  rounded-xl w-40">
+        <h1 class="font-bold">Status  </h1>
+        <p>{{project.projectStatus.statusName}}</p>
+    </div>
+</div>
+<br>
+<div class="flex ">
+    <div class="flex-auto gt-xs:pl-3 mr-3 left-0 cursor-pointer  rounded-xl w-50 ">
+        <h1 class="font-bold">Reference  </h1>
+        <p>{{project.reference}}</p>
+    </div>
+
+    <div class="cursor-pointer right-0  rounded-xl w-40">
+        <h1 class="font-bold">Owner </h1>
+        <p>{{project.owner}}</p>
+    </div>
+
+</div>
+<br>
+<div class="flex ">
+
+    <div class="flex-auto gt-xs:pl-3 mr-3 left-0 cursor-pointer  rounded-xl">
+        <h1 class="font-bold">Start Date  </h1>
+        <p>{{project.dateCreation}}</p>
+    </div>
+    <div class="cursor-pointer right-0  rounded-xl w-40">
+        <h1 class="font-bold">End Date  </h1>
+        <p>{{project.endDate}}</p>
+    </div>
+
+</div>
+<br>
+
+<div class="flex  rounded-xl">
+    <div class="flex-auto gt-xs:pl-3 mr-3 cursor-pointer">
+        <h1 class="font-bold">Description  </h1>
+        <div class="w-53 h-1 my-2 border-t-2"></div>
+        <p>{{project.description}}</p>
+    </div>
+</div>
+
+<br>
+<div class="flex items-center justify-end  mt-2 px-8 py-1  ">
+
+
+    <button mat-flat-button type='button' class="bg-accent-800" [color]="'accent'" (click)="cancelAdd()">
+        Close
+    </button>
+
+</div>
+</div>
+</div>

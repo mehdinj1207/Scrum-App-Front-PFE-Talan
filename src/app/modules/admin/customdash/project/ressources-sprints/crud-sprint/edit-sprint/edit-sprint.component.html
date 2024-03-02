@@ -1,0 +1,209 @@
+<div class="flex flex-auto">
+
+    <form class="flex flex-col flex-auto p-6 pt-10 sm:p-8 sm:pt-10 overflow-y-auto">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between -mt-3 -ml-4">
+
+            <!-- Mark as ... button -->
+            <button class="pr-4 pl-3.5" mat-button>
+                <ng-container>
+                    <div class="flex items-center justify-center">
+                        <mat-icon class="text-primary" [svgIcon]="'heroicons_outline:pencil-alt'"></mat-icon>
+                        <span class="ml-2 font-semibold">EDIT SPRINT</span>
+                    </div>
+                </ng-container>
+            </button>
+
+            <div class="flex items-center">
+                <!-- More menu -->
+                <button mat-icon-button [matMenuTriggerFor]="moreMenu">
+                    <mat-icon [svgIcon]="'heroicons_outline:dots-vertical'"></mat-icon>
+                </button>
+                <mat-menu #moreMenu="matMenu">
+                    <button mat-menu-item (click)="deleteSprint()">
+                        <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+
+                <!-- Close button -->
+                <button mat-icon-button [routerLink]="['../']">
+                    <mat-icon [svgIcon]="'heroicons_outline:x'"></mat-icon>
+                </button>
+            </div>
+
+        </div>
+
+        <mat-divider class="mt-6 mb-8"></mat-divider>
+
+        <!-- Title -->
+        <div>
+            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript w-full">
+                <mat-label>Sprint name</mat-label>
+                <input matInput [(ngModel)]="sprint.name" [ngModelOptions]="{standalone: true}" [spellcheck]="false">
+            </mat-form-field>
+        </div>
+
+
+        <!-- Priority and Due date -->
+        <div class="flex flex-wrap items-center mt-8">
+
+            <!-- Start date -->
+            <div>
+                <div class="font-medium">Start date</div>
+                <div class="relative flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer"
+                    [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': !sprint.startDate,
+                                'text-green-800 bg-green-200 dark:text-green-100 dark:bg-green-500': sprint.startDate}" (click)="startDatePicker.open()">
+                    <mat-icon class="icon-size-5 text-current" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                    <span class="ml-2 text-md font-medium">
+                        <ng-container *ngIf="sprint.startDate">{{sprint.startDate | date:'longDate'}}</ng-container>
+                        <ng-container class="'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700'"
+                            *ngIf="!sprint.startDate">Start date not set</ng-container>
+                    </span>
+                    <mat-form-field
+                        class="fuse-mat-no-subscript fuse-mat-dense invisible absolute inset-0 -mt-2.5 opacity-0 pointer-events-none">
+                        <input matInput [(ngModel)]="sprint.startDate" [ngModelOptions]="{standalone: true}"
+                            [matDatepicker]="startDatePicker">
+                        <mat-datepicker #startDatePicker>
+                            <mat-datepicker-actions>
+                                <button mat-button (click)="clearStartDate()" matDatepickerCancel>Clear
+                                </button>
+                                <button class="" mat-flat-button [color]="'primary'" matDatepickerApply>Select
+                                </button>
+                            </mat-datepicker-actions>
+                        </mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+            
+            <!-- Due date -->
+            <div class="ml-6">
+                <div class="font-medium">Due date</div>
+                <div class="relative flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer"
+                    [ngClass]="{'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700': !sprint.endDate,
+                                'text-green-800 bg-green-200 dark:text-green-100 dark:bg-green-500': sprint.endDate && isEndDateValid(),
+                                'text-red-800 bg-red-200 dark:text-red-100 dark:bg-red-500': sprint.endDate && !isEndDateValid()}" (click)="dueDatePicker.open()">
+                    <mat-icon class="icon-size-5 text-current" [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                    <span class="ml-2 text-md font-medium">
+                        <ng-container *ngIf="sprint.endDate">{{sprint.endDate | date:'longDate'}}</ng-container>
+                        <ng-container class="'text-gray-500 bg-gray-100 dark:text-gray-300 dark:bg-gray-700'"
+                            *ngIf="!sprint.endDate">Due date not set</ng-container>
+                    </span>
+                    <mat-form-field
+                        class="fuse-mat-no-subscript fuse-mat-dense invisible absolute inset-0 -mt-2.5 opacity-0 pointer-events-none">
+                        <input matInput [(ngModel)]="sprint.endDate" [ngModelOptions]="{standalone: true}"
+                            [matDatepicker]="dueDatePicker">
+                        <mat-datepicker #dueDatePicker>
+                            <mat-datepicker-actions>
+                                <button mat-button (click)="clearEndDate()" matDatepickerCancel>Clear
+                                </button>
+                                <button class="" mat-flat-button [color]="'primary'" matDatepickerApply>Select
+                                </button>
+                            </mat-datepicker-actions>
+                        </mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+            <!-- Status -->
+            <div class="ml-6">
+                <div class="font-medium">Status</div>
+                <div
+                    class="flex items-center mt-1.5 px-4 leading-9 rounded-full cursor-pointer"
+                    [ngClass]="{'text-indigo-800 bg-indigo-200 dark:text-indigo-100 dark:bg-indigo-500': statusName =='Completed',
+                                'text-yellow-800 bg-yellow-200 dark:text-yellow-100 dark:bg-yellow-500':  statusName =='In Progress',
+                                'text-orange-800 bg-orange-200 dark:text-orange-100 dark:bg-orange-500': statusName =='Created'}"
+                    [matMenuTriggerFor]="statusMenu">
+            
+                    <!-- Completed -->
+                    <ng-container *ngIf="statusName =='Completed'">
+                        <mat-icon
+                            class="icon-size-5 text-current"
+                            [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Completed</span>
+                    </ng-container>
+            
+                    <!-- In Progress -->
+                    <ng-container *ngIf="statusName =='In Progress'">
+                        <mat-icon
+                            class="icon-size-4 text-current"
+                            [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">In Progress</span>
+                    </ng-container>
+            
+                    <!-- Created -->
+                    <ng-container *ngIf="statusName =='Created'">
+                        <mat-icon
+                            class="icon-size-4 text-current"
+                            [svgIcon]="'heroicons_solid:dots-circle-horizontal'"></mat-icon>
+                        <span class="ml-2 mr-1 text-md font-medium">Created</span>
+                    </ng-container>
+                </div>
+                <mat-menu #statusMenu="matMenu">
+                    <!-- Completed -->
+                    <button
+                        [ngClass]="{'bg-hover': statusName =='Completed'}"
+                        (click)="setSprintStatus('Completed')"
+                        mat-menu-item>
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Completed</span>
+                            <mat-icon
+                                class="mr-0 icon-size-4 text-indigo-600 dark:text-indigo-500"
+                                [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                        </span>
+                    </button>
+            
+                    <!-- In Progress -->
+                    <button
+                        [ngClass]="{'bg-hover': statusName =='In Progress'}"
+                        (click)="setSprintStatus('In Progress')"
+                        mat-menu-item>
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">In Progress</span>
+                            <mat-icon
+                                class="mr-0 icon-size-4 text-yellow-600 dark:text-yellow-500"
+                                [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+                        </span>
+                    </button>
+            
+                    <!-- Created -->
+                    <button
+                        [ngClass]="{'bg-hover': statusName =='Created'}"
+                        (click)="setSprintStatus('Created')"
+                        mat-menu-item>
+                        <span class="inline-flex items-center justify-between w-full min-w-30 leading-5">
+                            <span class="font-medium">Created</span>
+                            <mat-icon
+                                class="mr-0 icon-size-4 text-orange-600 dark:text-orange-500"
+                                [svgIcon]="'heroicons_solid:dots-circle-horizontal'"></mat-icon>
+                        </span>
+                    </button>
+                </mat-menu>
+            </div>
+
+        </div>
+
+        <!-- Objective -->
+        <div class="mt-8 mb-3">
+            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript w-full">
+                <mat-label>Objective</mat-label>
+                <textarea matInput [spellcheck]="false" [(ngModel)]="sprint.objective"
+                    [ngModelOptions]="{standalone: true}" matTextareaAutosize rows="5"></textarea>
+            </mat-form-field>
+        </div>
+    <mat-error  *ngIf="!checkSprintFields()">{{errorMsg}}</mat-error>
+
+        <div class="grid grid-cols-2 gap-4 w-full mt-8 align-items-end">
+            <button class="flex-auto" (click)="onCloseDrawer()" mat-stroked-button>
+                Cancel
+            </button>
+            <button class="flex-auto" mat-flat-button [color]="'primary'" [disabled]="!checkSprintFields()"
+                    (click)="saveSprint()">
+                Save Sprint
+            </button>
+
+        </div>
+
+    </form>
+
+</div>

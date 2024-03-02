@@ -1,0 +1,232 @@
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-y-auto" cdkScrollable>
+    <mat-drawer-container class="flex-auto h-full" (backdropClick)="onBackdropClicked()">
+
+        <!-- Drawer -->
+        <mat-drawer class="w-140 md:w-140 dark:bg-gray-900" [mode]="drawerMode" [opened]="false" [position]="'end'"
+            [disableClose]="true" #matDrawer>
+            <router-outlet></router-outlet>
+        </mat-drawer>
+
+        <mat-drawer-content class="flex flex-col">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between 
+    p-6 sm:py-10 md:px-8 border-b bg-card dark:bg-transparent">
+                <!-- Title -->
+                <div>
+                    <div class="text-2xl font-extrabold tracking-tight leading-none" *ngIf="project">{{project.title}}
+                    </div>
+                    <div class="flex items-center mt-2 font-medium text-secondary">
+                        <ng-container *ngIf="project">
+                            {{project.reference}}
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <button mat-flat-button [color]="'primary'" (click)="changeProjetStatus()">
+                        <mat-icon [svgIcon]="'heroicons_solid:check-circle'"></mat-icon>
+                        <span *ngIf="project.projectStatus.statusName=='In Progress'" class="ml-2 mr-1">Terminate Project</span>
+                        <span *ngIf="project.projectStatus.statusName=='Created'" class="ml-2 mr-1">Start Project</span>
+                    </button>
+                    <!-- Add sprint button -->
+                    <button *ngIf="project.projectStatus.statusName!='Completed'" class="ml-3" mat-flat-button [color]="'accent'" (click)="addSprint()">
+                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                        <span class="ml-2 mr-1">Add Sprint</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="flex ml-5 mb-2 mt-2">
+
+                <mat-form-field class="cursor-pointer fuse-mat-rounded 
+        fuse-mat-dense fuse-mat-no-subscript mt-4 ml-4 lg:ml-4 w-80">
+
+                    <mat-icon class="cursor-pointer icon-size-5" [svgIcon]="'heroicons_solid:search'"
+                        matPrefix></mat-icon>
+                    <input class="cursor-pointer" matInput [autocomplete]="'off'" [placeholder]="''" #searchInput>
+
+                </mat-form-field>
+
+                <ng-container *ngIf="users?.length">
+                    <div class="w-4 h-1 mt-4"></div>
+                    <div class="cursor-pointer flex items-center mt-4 -space-x-1.5">
+                        <ng-container *ngFor="let member of users.slice(0, 3); ">
+
+                            <!--<img class="flex-0 w-8 h-8 rounded-full  ring-bg-card 
+                        ring-offset-transparent object-cover" [src]="member.avatar" alt="Member avatar">-->
+
+
+                            <img *ngIf="!member.data" class="flex-0 w-8 h-8 
+                        rounded-full ring ring-offset-1 ring-bg-card 
+                        ring-offset-transparent object-cover" [src]="sanitizedImageUrl">
+
+
+                            <img (click)="showOneMemberModal(member.idUser)" *ngIf="member.data" class="flex-0 w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card 
+                    ring-offset-transparent object-cover" [src]="'data:image/png;base64,' + member.data">
+
+
+
+                        </ng-container>
+
+
+
+
+                        <ng-container *ngIf="users.length > 3">
+
+                            <div (click)="showMembersModal()" class="hover:bg-gray-400 cursor-pointer flex flex-0 items-center justify-center w-8 h-8 
+                    rounded-full ring ring-offset-1 ring-bg-card ring-offset-transparent bg-gray-200 text-gray-500">
+                                <div class="text-md font-semibold">
+                                    +{{ users.length -3 }}
+                                </div>
+                            </div>
+
+                        </ng-container>
+
+
+                    </div>
+
+                    <ng-container>
+                        <div *ngIf="userRole == 'Manager' " class=" hover:bg-gray-400 cursor-pointer mt-5 ml-4 flex flex-0 items-center justify-center w-8 h-8 
+                rounded-full ring ring-offset-1 ring-bg-card ring-offset-transparent bg-gray-200 text-gray-500">
+                            <mat-icon (click)="affectResourceModal()" svgIcon="heroicons_solid:user-add"></mat-icon>
+                        </div>
+                    </ng-container>
+
+                </ng-container>
+
+
+                <ng-container *ngIf="!users.length">
+                    <div class=" hover:bg-gray-400 cursor-pointer mt-5 ml-4 flex flex-0 items-center justify-center w-8 h-8 
+            rounded-full ring ring-offset-1 ring-bg-card ring-offset-transparent bg-gray-200 text-gray-500">
+                        <mat-icon (click)="affectResourceModal()" svgIcon="heroicons_solid:user-add"></mat-icon>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="verifySprintInProgress">
+                    <div class="absolute right-36  mt-3 ">
+                        <a mat-stroked-button (click)="openScrumboard()">
+                            <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_solid:view-boards'"></mat-icon>
+                            Scrumboard
+                        </a>
+                    </div>
+                </ng-container>
+
+                <ng-container>
+                    <div class="absolute  right-7  mt-3 ">
+                        <a mat-stroked-button (click)="openFileManager()">
+                            <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                            Files
+                        </a>
+                    </div>
+                </ng-container>
+
+            </div>
+            <!-- Main -->
+            <div class="flex flex-col flex-auto items-center sm:p-3 ">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-2 md:mt-4"
+                    *ngIf="!noExistingSprints; else noSprints">
+                    <ng-container *ngFor="let sprint of currentPageData;">
+                        <a
+                            class="flex flex-col flex-auto w-56 p-6 rounded-lg shadow bg-card rounded-lg hover:shadow-xl transition-shadow duration-150 ease-in-out">
+                            <div class="flex justify-between ">
+                                <div *ngIf="sprint.sprintStatus.name==='Created'"
+                                    (click)="redirectToBacklog(sprint.idSprint)"
+                                    class="flex items-center justify-start p-4 rounded-full bg-orange-50 text-orange-700 dark:bg-orange dark:text-on-orange cursor-pointer">
+                                    <mat-icon matTooltip="Created" class="text-current"
+                                        svgIcon="heroicons_outline:clipboard"></mat-icon>
+                                </div>
+                                <div *ngIf="sprint.sprintStatus.name=='In Progress'"
+                                    (click)="redirectToBacklog(sprint.idSprint)"
+                                    class="flex items-center justify-start p-4 rounded-full bg-yellow-50 text-yellow-700 dark:bg-yellow dark:text-on-yellow cursor-pointer">
+                                    <mat-icon matTooltip="In Progress" class="text-current"
+                                        svgIcon="heroicons_outline:clipboard-list"></mat-icon>
+                                </div>
+                                <div *ngIf="sprint.sprintStatus.name=='Completed'"
+                                    (click)="redirectToBacklog(sprint.idSprint)"
+                                    class="flex items-center justify-start p-4 rounded-full bg-primary-50 text-primary-700 dark:bg-primary dark:text-on-primary cursor-pointer">
+                                    <mat-icon matTooltip="Completed" class="text-current"
+                                        svgIcon="heroicons_outline:clipboard-check"></mat-icon>
+                                </div>
+                                <div class="flex justify-end items-center w-full -mr-3">
+                                    <button mat-icon-button [matMenuTriggerFor]="actions" *ngIf="userRole == 'Manager' && sprint.sprintStatus.name!='Completed'">
+                                        <mat-icon class="icon-size-5"
+                                            [svgIcon]="'heroicons_solid:dots-vertical'"></mat-icon>
+                                    </button>
+                                    <mat-menu #actions="matMenu">
+                                        <button *ngIf="sprint.sprintStatus.name=='In Progress'" mat-menu-item (click)="completeSprint(sprint.idSprint)"><mat-icon
+                                            class="icon-size-4 text-primary"
+                                            [svgIcon]="'heroicons_solid:check-circle'"></mat-icon><span>Complete
+                                            Sprint</span></button>
+                                            <button *ngIf="sprint.sprintStatus.name=='Created' && !progressSprintExist" mat-menu-item (click)="startSprint(sprint.idSprint)"><mat-icon
+                                                class="icon-size-4 text-green-700"
+                                                [svgIcon]="'heroicons_solid:fast-forward'"></mat-icon><span>Start
+                                                Sprint</span></button>
+                                        <button mat-menu-item (click)="editSprint(sprint.idSprint)">
+                                            <mat-icon class="icon-size-4"
+                                                [svgIcon]="'heroicons_solid:pencil-alt'"></mat-icon><span>Edit
+                                                Sprint</span></button>
+                                        <button mat-menu-item (click)="deleteSprint(sprint.idSprint)"><mat-icon
+                                                class="icon-size-4"
+                                                [svgIcon]="'heroicons_solid:trash'"></mat-icon><span>Delete
+                                                Sprint</span></button>
+
+
+                                    </mat-menu>
+                                </div>
+                            </div>
+                            <!-- Title -->
+                            <div class="mt-5 text-lg font-medium leading-5 cursor-pointer"
+                                (click)="redirectToBacklog(sprint.idSprint)">{{sprint.name}}</div>
+                            <!-- Objectif -->
+                            <div class="mt-0.5 line-clamp-2 text-secondary cursor-pointer"
+                                (click)="redirectToBacklog(sprint.idSprint)">{{sprint.objective}}</div>
+                            <!-- Members -->
+                            <ng-container>
+                                <div class="w-12 h-1 mt-6 border-t-2"></div>
+                                <div class="cursor-pointer flex items-center mt-4 -space-x-1.5">
+                                    <ng-container *ngFor="let member of users.slice(0, 3); ">
+                                        <img *ngIf="!member.data" class="flex-0 w-8 h-8 
+                                            rounded-full ring ring-offset-1 ring-bg-card 
+                                            ring-offset-transparent object-cover" [src]="sanitizedImageUrl">
+                                        <img (click)="showOneMemberModal(member.idUser)" *ngIf="member.data" class="flex-0 w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card 
+                                            ring-offset-transparent object-cover"
+                                            [src]="'data:image/png;base64,' + member.data">
+                                    </ng-container>
+                                    <ng-container *ngIf="users.length > 3">
+                                        <div (click)="showMembersModal()"
+                                            class="hover:bg-gray-400 cursor-pointer flex flex-0 items-center justify-center w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card ring-offset-transparent bg-gray-200 text-gray-500">
+                                            <div class="text-md font-semibold">
+                                                +{{ users.length -3 }}
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </ng-container>
+                            <!-- Sprint period -->
+                            <div class="flex items-center mt-4 text-md font-md">
+                                <div class="text-secondary">{{sprint.startDate}} - {{sprint.endDate}}</div>
+                            </div>
+                        </a>
+                    </ng-container>
+                    <!-- New sprint -->
+                    <div *ngIf="userRole == 'Manager' && currentPage == nbPages && project.projectStatus.statusName!='Completed'" (click)="addSprint()"
+                        class="flex flex-col items-center justify-center w-56 rounded-lg cursor-pointer border-2 border-gray-300 border-dashed hover:bg-hover transition-colors duration-150 ease-in-out">
+                        <mat-icon class="icon-size-12 text-hint" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    </div>
+
+                </div>
+
+                <ng-template #noSprints>
+                    <div class="p-8 sm:p-16  text-4xl font-semibold tracking-tight text-center">There are no Sprints!
+                    </div>
+                </ng-template>
+            </div>
+            <mat-paginator *ngIf="!noExistingSprints" [length]="length_Tab" [(pageSize)]="itemsPerPage"
+                [pageSizeOptions]="[4, 8]" (page)="onPageChange($event)"
+                class=" w-full max-w-screen-xl mx-auto flex justify-center sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent">
+            </mat-paginator>
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

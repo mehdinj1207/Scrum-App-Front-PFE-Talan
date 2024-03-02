@@ -1,0 +1,110 @@
+
+<div class="flex flex-col max-w-240 md:min-w-70 max-h-screen -m-6">
+
+  <!-- Header -->
+  <div class="flex flex-0 items-center justify-between h-14 pr-3 sm:pr-5 pl-6 sm:pl-8 bg-accent-800 text-on-primary">
+      <div class="text-base">Affect Member</div>
+      <button mat-icon-button (click)="cancelAdd()" [tabIndex]="-1">
+          <mat-icon class="text-current" [svgIcon]="'heroicons_outline:x'"></mat-icon>
+      </button>
+  </div>
+
+
+
+
+<form class="flex flex-col flex-auto p-2 sm:p-6 overflow-y-auto" #myForm="ngForm" (submit)="affectResource()">
+
+  <div class="flex">
+    <mat-form-field class="flex-auto gt-xs:pr-3">
+      <mat-label>Add member </mat-label>
+
+      <!--<input class="cursor-pointer" [formControl]="myControl" type="text" matInput [matAutocomplete]="auto" 
+            placeholder="Find member by e-mail" name="selectedOptionString" [(ngModel)]="selectedOptionString">
+            <mat-icon class="icon-size-5" svgIcon="heroicons_outline:search"></mat-icon>
+            <mat-autocomplete class="scrollable-autocomplete max-h-36 overflow-y-auto" #auto="matAutocomplete">
+              <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                {{ option }}
+              </mat-option>
+            </mat-autocomplete>-->
+
+      <input class="cursor-pointer" [formControl]="myControl" type="text" matInput [matAutocomplete]="auto"
+        placeholder="Find member by e-mail">
+      <mat-icon class="icon-size-5" svgIcon="heroicons_outline:search"></mat-icon>
+
+      <mat-autocomplete class="scrollable-autocomplete max-h-36 overflow-y-auto" #auto="matAutocomplete">
+        <mat-option *ngFor="let option of externalUsers" [value]="option.email"
+          (click)="selectUser(option)">
+          {{ option.email }}
+        </mat-option>
+      </mat-autocomplete>
+
+      <mat-error *ngIf="myControl.invalid">
+        User Field is mandatory
+      </mat-error>
+
+    </mat-form-field>
+  </div>
+
+
+  <div class="flex">
+    <mat-form-field class="flex-auto gt-xs:pr-3">
+      <mat-label>Role </mat-label>
+
+      <input class="cursor-pointer" [formControl]="roleControl" name="role" type="text" matInput [matAutocomplete]="auto2"
+        placeholder="Choose a role">
+
+      <mat-icon class="icon-size-5" svgIcon="heroicons_outline:chevron-down"></mat-icon>
+      <mat-autocomplete class="scrollable-autocomplete max-h-36 overflow-y-auto" #auto2="matAutocomplete">
+        <mat-option *ngFor="let option2 of roles" [value]="option2.role" (click)="selectRole(option2)">
+          {{ option2.role }}
+        </mat-option>
+      </mat-autocomplete>
+
+      <mat-error *ngIf="roleControl.invalid">
+        Title Field is mandatory
+      </mat-error>
+
+    </mat-form-field>
+
+
+  </div>
+
+
+  <div class="flex items-center justify-end  mt-0 px-0 py-0  ">
+
+    <mat-error class="pr-8" *ngIf="!checkUserSelected() && myControl.valid">
+      Invalid User
+    </mat-error>
+
+    <mat-error class="pr-5" *ngIf="!checkRoleSelected() && roleControl.valid">
+      Invalid Role
+    </mat-error>
+
+
+    <button mat-flat-button type='button' class="bg-gray-200" (click)="cancelAdd()">
+      Cancel
+    </button>
+
+    <button  [disabled]="myForm.invalid || roleControl.invalid 
+    || myControl.invalid || !checkUserSelected() || !checkRoleSelected()" class="px-6 ml-3 bg-accent-800" 
+    mat-flat-button [color]="'accent'" type="submit">
+      Affect
+    </button>
+
+
+
+  </div>
+  <!--Two Data Binding with the form test
+    <pre> {{myForm.value | json}} </pre>
+    <pre> {{myForm.value.dateCreation}} </pre>
+    <pre> {{checkDates( myForm.value.dateCreation , myForm.value.endDate ) }} </pre>-->
+
+</form>
+</div>
+
+
+
+
+
+
+

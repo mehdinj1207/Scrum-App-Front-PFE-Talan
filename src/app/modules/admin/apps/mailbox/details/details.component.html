@@ -1,0 +1,346 @@
+<div class="flex flex-col flex-auto overflow-y-auto lg:overflow-hidden bg-card dark:bg-default">
+    <ng-container *ngIf="feedbackselected; else selectMailToRead">
+        <!-- Header -->
+        <div class="z-10 relative flex flex-col flex-0 w-full border-b">
+
+            <!-- Toolbar -->
+            <div class="flex items-center justify-end min-h-16 px-4 md:px-6 border-b bg-gray-50 dark:bg-transparent">
+
+                <!-- Back button -->
+                <a class="lg:hidden md:-ml-2" mat-icon-button [routerLink]="['./']">
+                    <mat-icon [svgIcon]="'heroicons_outline:arrow-narrow-left'"></mat-icon>
+                </a>
+                <!-- Toggle important button -->
+                <button class="ml-2" mat-icon-button  matTooltip="Urgent Feedback" *ngIf="!feedback.sendOrReceived" (click)="toggleImportant()">
+                    <mat-icon [ngClass]="{'text-red-600 dark:text-red-500': feedback.urgent}"
+                        [svgIcon]="'heroicons_outline:exclamation-circle'"></mat-icon>
+                </button>
+
+                <!-- Toggle starred button -->
+                <button class="ml-2" mat-icon-button (click)="toggleStar()" *ngIf="feedback.sendOrReceived">
+                    <mat-icon [ngClass]="{'text-yellow-500 dark:text-yellow-400': feedback.isImportant}"
+                        [svgIcon]="'heroicons_outline:star'"></mat-icon>
+                </button>
+
+                <!-- Other actions button & menu -->
+                <button class="ml-2" mat-icon-button [matMenuTriggerFor]="mailMenu">
+                    <mat-icon [svgIcon]="'heroicons_outline:dots-vertical'"></mat-icon>
+                </button>
+                <mat-menu #mailMenu="matMenu">
+                    <button mat-menu-item *ngIf="feedback.isRead && feedback.sendOrReceived"
+                        (click)="toggleUnread(true)">
+                        <mat-icon [svgIcon]="'heroicons_outline:mail'"></mat-icon>
+                        <span>Mark as unread</span>
+                    </button>
+                    <!-- Delete -->
+                    <button [disabled]="disableDelete" mat-menu-item (click)="deleteFeedback()" *ngIf="!feedback.sendOrReceived">
+                        <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                        <span>Delete</span>
+                    </button>
+                </mat-menu>
+            </div>
+            <div class="flex flex-wrap items-center py-5 px-6">
+                <!-- Project -->
+                <div class="flex flex-auto my-1 mr-4 text-2xl">{{feedback.project.title}}</div>
+            </div>
+
+        </div>
+
+        <!-- Threads -->
+        <div class="flex flex-col flex-auto flex-shrink-0 lg:flex-shrink p-3 lg:overflow-y-auto bg-gray-100 dark:bg-transparent"
+            fuseScrollReset>
+
+            <!-- Thread -->
+            <div
+                class="flex flex-col flex-0 w-full shadow rounded-2xl overflow-hidden bg-card dark:bg-black dark:bg-opacity-10">
+                <div class="flex flex-col py-8 px-6 bg-gray-50" *ngIf="replyOnFeedback!=null">
+                    <h1 class="mb-3">Replied On:</h1>
+                    <!-- Header -->
+                    <div class="flex items-center w-full">
+
+                        <!-- Sender avatar -->
+                        <div class="flex flex-0 items-center justify-center w-10 h-10 rounded-full overflow-hidden">
+                            <img *ngIf="replyOnFeedback.user.data" class="w-full h-full"
+                                [src]="'data:image/png;base64,' + replyOnFeedback.user.data">
+                            <img *ngIf="!replyOnFeedback.user.data" class="w-full h-full" [src]="ananymousAvatar">
+
+                        </div>
+
+                        <!-- Info -->
+                        <div class="ml-4 min-w-0">
+
+                            <!-- From -->
+                            <div class="font-semibold truncate">{{replyOnFeedback.user.firstname}}
+                                {{replyOnFeedback.user.lastname}}
+                            </div>
+
+                            <!-- To -->
+                            <!-- if the feedback selected is Received -->
+                            <div *ngIf="feedback.sendOrReceived">
+                                <div class="flex items-center mt-0.5 leading-5">
+                                    <div>to</div>
+                                    <div *ngFor="let receiver of receiversOfReply;">
+                                        <div class="ml-1 font-semibold">{{receiver.email}},</div>
+                                    </div>
+
+                                    <!-- Info details panel button -->
+                                    <button class="w-5 h-5 min-h-5 ml-1" mat-icon-button
+                                        (click)="openInfoDetailsPanel()" #infoDetailsPanelOrigin>
+                                        <mat-icon class="icon-size-5"
+                                            [svgIcon]="'heroicons_solid:chevron-down'"></mat-icon>
+                                    </button>
+
+                                    <!-- Info details panel -->
+                                    <ng-template #infoDetailsPanel>
+                                        <div
+                                            class="flex flex-col py-4 px-6 w-full max-w-160 space-y-1.5 border text-md rounded shadow-md overflow-auto bg-card">
+                                            <!-- From -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">from:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{replyOnFeedback.user.email}}
+                                                </div>
+                                            </div>
+                                            <!-- To -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">to:</div>
+                                                <div *ngFor="let receiver of receiversOfReply;">
+                                                    <div class="pl-2 whitespace-pre-wrap">{{receiver.email}},</div>
+                                                </div>
+                                            </div>
+                                            <!-- Date -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">date:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{replyOnFeedback.dateFeedback |
+                                                    date:'EEEE,
+                                                    MMMM
+                                                    d, y - hh:mm a'}}</div>
+                                            </div>
+                                            <!-- Subject -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">Project:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{replyOnFeedback.project.title}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </div>
+
+                            <!-- if the feedback selected is Sent -->
+                            <div *ngIf="!feedback.sendOrReceived">
+                                <div class="flex items-center mt-0.5 leading-5">
+                                    <div>to</div>
+                                    <div class="ml-1 font-semibold">me</div>
+
+
+                                    <!-- Info details panel button -->
+                                    <button class="w-5 h-5 min-h-5 ml-1" mat-icon-button
+                                        (click)="openInfoDetailsPanel()" #infoDetailsPanelOrigin>
+                                        <mat-icon class="icon-size-5"
+                                            [svgIcon]="'heroicons_solid:chevron-down'"></mat-icon>
+                                    </button>
+
+                                    <!-- Info details panel -->
+                                    <ng-template #infoDetailsPanel>
+                                        <div
+                                            class="flex flex-col py-4 px-6 w-full max-w-160 space-y-1.5 border text-md rounded shadow-md overflow-auto bg-card">
+                                            <!-- From -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">from:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{replyOnFeedback.user.email}}
+                                                </div>
+                                            </div>
+                                            <!-- To -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">to:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{myEmail}}</div>
+                                            </div>
+                                            <!-- Date -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">date:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{replyOnFeedback.dateFeedback |
+                                                    date:'EEEE,
+                                                    MMMM
+                                                    d, y - hh:mm a'}}</div>
+                                            </div>
+                                            <!-- Subject -->
+                                            <div class="flex">
+                                                <div class="min-w-14 font-medium text-right">Project:</div>
+                                                <div class="pl-2 whitespace-pre-wrap">{{replyOnFeedback.project.title}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex mt-8 whitespace-pre-line leading-relaxed" [innerHTML]="replyOnFeedback.content">
+                    </div>
+
+                </div>
+                <div class="flex flex-col py-8 px-6" [ngClass]="{'ml-10': feedback.sendOrReceived && replyOnFeedback}">
+
+                    <!-- Header -->
+                    <div class="flex items-center w-full">
+
+                        <!-- Sender avatar -->
+                        <div class="flex flex-0 items-center justify-center w-10 h-10 rounded-full overflow-hidden">
+                            <img *ngIf="feedback.user.data" class="w-full h-full"
+                                [src]="'data:image/png;base64,' + feedback.user.data">
+                            <img *ngIf="!feedback.user.data" class="w-full h-full" [src]="ananymousAvatar">
+
+                        </div>
+
+                        <!-- Info -->
+                        <div class="ml-4 min-w-0">
+
+                            <!-- From -->
+                            <div class="font-semibold truncate">{{feedback.user.firstname}} {{feedback.user.lastname}}
+                            </div>
+
+                            <!-- To -->
+                            <!-- To if the selected feedback is Received-->
+                            <div *ngIf="feedback.sendOrReceived">
+                                <div class="flex items-center mt-0.5 leading-5">
+                                    <div>to</div>
+                                    <div class="ml-1 font-semibold">me</div>
+                                </div>
+                            </div>
+
+
+                            <!-- To if the selected feedback is sent-->
+                            <div *ngIf="!feedback.sendOrReceived">
+                                <div class="flex items-center mt-0.5 leading-5">
+                                    <div>to</div>
+                                    <div *ngFor="let receiver of receivers;">
+                                        <div class="ml-1 font-semibold">{{receiver.email}}, </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex mt-8 whitespace-pre-line leading-relaxed" [innerHTML]="feedback.content">
+                    </div>
+                    <nav class="ratingStar mt-3" *ngIf="feedback.star>0">
+                        <ul>
+                            <li [ngClass]="{'current': feedback.star==0}">
+                                <svg>
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </li>
+                            <li [ngClass]="{'current': feedback.star==1}">
+                                <svg>
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </li>
+                            <li [ngClass]="{'current': feedback.star==2}">
+                                <svg>
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </li>
+                            <li [ngClass]="{'current': feedback.star==3}"><span></span>
+                                <svg>
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </li>
+                            <li [ngClass]="{'current': feedback.star==4}"><span></span>
+                                <svg>
+                                    <use xlink:href="#star"></use>
+                                </svg>
+                            </li>
+                        </ul>
+                        <div><span>
+                                <svg>
+                                    <use xlink:href="#star"></use>
+                                </svg></span></div>
+                    </nav>
+                    <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+                        <symbol id="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 34">
+                            <path fill="currentColor"
+                                d="M19.6859343,0.861782958 L24.8136328,8.05088572 C25.0669318,8.40601432 25.4299179,8.6717536 25.8489524,8.80883508 L34.592052,11.6690221 C35.6704701,12.021812 36.2532905,13.1657829 35.8938178,14.2241526 C35.8056709,14.4836775 35.6647294,14.7229267 35.4795411,14.9273903 L29.901129,21.0864353 C29.5299163,21.4962859 29.3444371,22.0366367 29.3872912,22.5833831 L30.1116131,31.8245163 C30.1987981,32.9368499 29.3506698,33.9079379 28.2172657,33.993502 C27.9437428,34.0141511 27.6687736,33.9809301 27.4085205,33.8957918 L18.6506147,31.0307612 C18.2281197,30.8925477 17.7713439,30.8925477 17.3488489,31.0307612 L8.59094317,33.8957918 C7.51252508,34.2485817 6.34688429,33.6765963 5.98741159,32.6182265 C5.90066055,32.3628116 5.86681029,32.0929542 5.88785051,31.8245163 L6.61217242,22.5833831 C6.65502653,22.0366367 6.46954737,21.4962859 6.09833466,21.0864353 L0.519922484,14.9273903 C-0.235294755,14.0935658 -0.158766688,12.8167745 0.690852706,12.0755971 C0.899189467,11.8938516 1.14297067,11.7555303 1.40741159,11.6690221 L10.1505113,8.80883508 C10.5695458,8.6717536 10.9325319,8.40601432 11.1858308,8.05088572 L16.3135293,0.861782958 C16.9654141,-0.0521682813 18.2488096,-0.274439442 19.1800736,0.365326425 C19.3769294,0.500563797 19.5481352,0.668586713 19.6859343,0.861782958 Z">
+                            </path>
+                        </symbol>
+                        <path class="shadow"
+                            d="M18.7022469,29.7633426 L29.1611722,33.6861584 C28.8859085,33.8576358 28.5650147,33.9672494 28.2172657,33.993502 C27.9437428,34.0141511 27.6687736,33.9809301 27.4085205,33.8957918 L18.6506147,31.0307612 C18.2281197,30.8925477 17.7713439,30.8925477 17.3488489,31.0307612 L8.59094317,33.8957918 C7.98083887,34.0953792 7.34281791,33.9989813 6.83864817,33.6859784 L17.2977531,29.7633426 C17.7505234,29.5935537 18.2494766,29.5935537 18.7022469,29.7633426 Z">
+                        </path>
+                    </svg>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="flex w-full p-6 border-t bg-gray-50 dark:bg-transparent"
+                    *ngIf="feedback.sendOrReceived==true">
+
+                    <!-- Buttons -->
+                    <ng-container *ngIf="!replyFormActive">
+                        <div class="flex flex-wrap justify-end w-full -m-2">
+                            <!-- Reply -->
+                            <button class="m-2" mat-stroked-button [color]="'primary'" (click)="reply()">
+                                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:reply'"></mat-icon>
+                                <span class="ml-2">Reply</span>
+                            </button>
+                            <!-- Forward 
+                            <button class="m-2" mat-stroked-button [color]="'primary'" (click)="forward()">
+                                <mat-icon class="icon-size-5" [color]="'primary'"
+                                    [svgIcon]="'heroicons_solid:chevron-double-right'"></mat-icon>
+                                <span class="ml-2">Forward</span>
+                            </button>-->
+                        </div>
+                    </ng-container>
+
+                    <!-- Reply form -->
+                    <ng-container *ngIf="replyFormActive">
+                        <div class="flex flex-col w-full" #replyForm>
+
+                            <mat-form-field class="fuse-mat-textarea fuse-mat-no-subscript">
+                                <textarea class="textarea" matInput [placeholder]="'Type your reply here'" [rows]="4"
+                                    [(ngModel)]="feedbackReply.content"
+                                    [ngModelOptions]="{standalone: true}"></textarea>
+                            </mat-form-field>
+
+                            <div class="flex flex-col sm:flex-row sm:items-end justify-end mt-4 sm:mt-6">
+
+                                <div class="flex items-end mt-4 sm:mt-0">
+                                    <!-- Discard -->
+                                    <button class="order-last sm:order-first ml-3 sm:ml-0" mat-button
+                                        (click)="discard()">
+                                        Discard
+                                    </button>
+                                    <!-- Send -->
+                                    <button class="sm:ml-3" mat-flat-button [color]="'primary'" (click)="send()">
+                                        Send
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </ng-container>
+
+    <!-- Select mail to read template -->
+    <ng-template #selectMailToRead>
+
+        <div class="flex flex-col flex-auto items-center justify-center bg-gray-100 dark:bg-transparent">
+            <mat-icon class="icon-size-24" [svgIcon]="'iconsmind:mailbox_empty'"></mat-icon>
+            <div class="mt-4 text-2xl font-semibold tracking-tight text-secondary">Select a feedback to read</div>
+        </div>
+
+    </ng-template>
+
+</div>

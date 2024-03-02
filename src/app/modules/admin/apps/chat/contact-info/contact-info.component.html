@@ -1,0 +1,72 @@
+<div class="flex flex-col flex-auto h-full bg-card dark:bg-default">
+
+    <!-- Header -->
+    <div class="flex flex-0 items-center h-18 px-4 border-b bg-gray-50 dark:bg-transparent">
+        <button
+            mat-icon-button
+            (click)="drawer.close()">
+            <mat-icon [svgIcon]="'heroicons_outline:x'"></mat-icon>
+        </button>
+        <div class="ml-2 text-lg font-medium">Contact info</div>
+    </div>
+
+    <div class="overflow-y-auto">
+        <!-- Contact avatar & info -->
+        <div class="flex flex-col items-center mt-8">
+            <div class="w-40 h-40 rounded-full">
+                <ng-container *ngIf="profile.data">
+                    
+                    
+                    <img *ngIf="profile.data"
+                    class="w-full h-full rounded-full object-cover"
+                    [src]="'data:image/png;base64,' + profile.data"
+                    [alt]="'Contact avatar'">
+                </ng-container>
+                <ng-container *ngIf="!profile.data">
+                    
+                    
+                    <img *ngIf="!profile.data"
+                    class="w-full h-full rounded-full object-cover"
+                    [src]="sanitizedImageUrl"
+                    [alt]="'Contact avatar'">
+                </ng-container>
+            </div>
+            <div class="mt-4 text-lg font-medium">{{profile.firstname}} {{profile.lastname}}</div>
+            <div class="mt-0.5 text-md text-secondary">Hey there i'm using Scrumwise</div>
+        </div>
+
+        <div class="py-10 px-7">
+            
+            <!-- Details -->
+            <div class="mt-10 space-y-4">
+                <div class="text-lg font-medium mb-3">Details</div>
+                <ng-container *ngIf="profile.email">
+                    <div>
+                        <div class="font-medium text-secondary">Email</div>
+                        <div class="">{{profile.email}}</div>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="profile.tel">
+                    <div>
+                        <div class="font-medium text-secondary">Phone number</div>
+                        <div class="">{{profile.tel}}</div>
+                    </div>
+
+                </ng-container>
+                <ng-container *ngIf="profile.cin">
+                    <div>
+                        <div class="font-medium text-secondary">Cin</div>
+                        <div class="">{{profile.cin}}</div>
+                    </div>
+                </ng-container>
+                <ng-container *ngIf="profile.role">
+                    <div>
+                        <div class="font-medium text-secondary">Birthday</div>
+                        <div class="">{{profile.role}}</div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,107 @@
+
+
+<div class="flex flex-col max-h-screen -m-6">
+
+    <!-- Header -->
+    <div class="flex flex-0 items-center justify-between h-14 pr-3 sm:pr-5 pl-6 sm:pl-8 bg-accent-800 text-on-primary">
+        <div class="text-base">Members</div>
+        <button mat-icon-button (click)="cancelAdd()" [tabIndex]="-1">
+            <mat-icon class="text-current" [svgIcon]="'heroicons_outline:x'"></mat-icon>
+        </button>
+    </div>
+
+
+
+
+<div class="flex justify-end w-300 mt-5  rounded-2xl ">
+    
+    <div class="flex-auto gt-xs:pl-3 mr-3 ml-1 pl-2 left-0 cursor-pointer  rounded-xl w-30 ">
+        <h1 class="font-bold mb-2">Product Owner </h1>
+
+        <img *ngIf="!productOwner.data" class="flex-0 inline w-8 h-8 
+        rounded-full ring ring-offset-1 ring-bg-card 
+        ring-offset-transparent object-cover" [src]="sanitizedImageUrl">
+
+        <img *ngIf="productOwner.data" class="flex-0 inline w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card 
+        ring-offset-transparent object-cover" [src]="'data:image/png;base64,' + productOwner.data">
+
+        <span class="inline ml-4 mt-2">{{productOwner.email}} </span>
+
+        <span *ngIf="productOwner.data && userRole == 'Manager' " class="items-end mt-4  ml-2">
+            <mat-icon mat-icon-button (click)="deleteRessource(productOwner.idUser,data)" class=" cursor-pointer icon-size-4">delete</mat-icon>
+        </span>
+
+    </div>
+
+
+
+    <div class="flex-auto gt-xs:pl-3 mr-3 left-0 cursor-pointer  rounded-xl w-30 ">
+        <h1 class="font-bold mb-2">Scrum Master </h1>
+
+        <img *ngIf="!scrumMaster.data" class="flex-0 inline w-8 h-8 
+    rounded-full ring ring-offset-1 ring-bg-card 
+    ring-offset-transparent object-cover" [src]="sanitizedImageUrl">
+
+        <img *ngIf="scrumMaster.data" class="flex-0 inline w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card 
+    ring-offset-transparent object-cover" [src]="'data:image/png;base64,' + scrumMaster.data">
+
+        <span class="inline ml-4 mt-2">{{scrumMaster.email}} </span>
+
+        <span *ngIf="scrumMaster.data && userRole == 'Manager' " class="items-end mt-2  ml-2">
+            <mat-icon mat-icon-button (click)="deleteRessource(scrumMaster.idUser,data)" class=" cursor-pointer icon-size-4">delete</mat-icon>
+        </span>
+
+    </div>
+
+
+    <div class="cursor-pointer right-0 mr-0 pl-2 rounded-xl w-80 h-80 overflow-auto">
+        <h1 class="font-bold ">Developers </h1>
+
+        <div *ngFor="let dev of developers" class=" w-70 rounded-xl">
+
+            <div class="flex flex-row  mr-0 mt-2 mb-4 cursor-pointer  rounded-xl ">
+
+                <img *ngIf="!dev.data" class=" mt-3 flex-0 inline w-8 h-8 
+                rounded-full ring ring-offset-1 ring-bg-card 
+                ring-offset-transparent object-cover" [src]="sanitizedImageUrl">
+
+                <img *ngIf="dev.data" class="  mt-0 flex-0 inline w-8 h-8 rounded-full ring ring-offset-1 ring-bg-card 
+                ring-offset-transparent object-cover" [src]="'data:image/png;base64,' + dev.data">
+
+                <span class=" ml-4 mt-1 ">{{dev.email}} </span>
+                <span *ngIf=" userRole == 'Manager' " class="place-items-end mt-1  ml-4">
+                    <mat-icon mat-icon-button (click)="deleteRessource(dev.idUser,data)" class=" cursor-pointer icon-size-4 ">delete</mat-icon>
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="flex items-center justify-end  mb-2 mt-2 px-4 py-1   ">
+
+    <button mat-flat-button type='button' class="Sw-20 bg-gray-200" (click)="cancelAdd()">
+        Close
+    </button>
+
+    <button
+    *ngIf="userRole == 'Manager' "
+    (click)="addMember()"
+    class="ml-3 bg-accent-800"
+    mat-flat-button
+    [color]="'accent'">
+    Add member
+    </button>
+
+    
+
+    
+
+</div>
+
+
+</div>
